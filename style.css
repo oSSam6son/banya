@@ -2277,6 +2277,10 @@ section[id] {
     font-size: 1rem;
   }
 
+  .tooltip-icon {
+    z-index: 50;
+  }
+  
   .what-you-get-link {
     font-size: 0.7rem;
     padding: 5px 8px;
@@ -2289,7 +2293,7 @@ section[id] {
     width: 230px;
     padding: 10px 12px;
     font-size: 0.7rem;
-    z-index: 40;
+    z-index: 100;
   }
   .what-you-get-tooltip::after {
     top: -14px;
