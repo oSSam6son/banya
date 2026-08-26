@@ -552,7 +552,7 @@ function initYandexMap() {
     const coords = [55.440366, 37.554479];
     const map = new ymaps.Map("yandex-map", {
       center: coords,
-      zoom: 15,
+      zoom: 19,
       controls: ["zoomControl", "fullscreenControl"],
     });
     const placemark = new ymaps.Placemark(
