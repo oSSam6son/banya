@@ -1933,6 +1933,7 @@ section[id] {
   cursor: pointer;
   color: var(--text-light);
   transition: color 0.3s;
+  z-index: 50;
 }
 
 .tooltip-icon i {
@@ -2288,6 +2289,7 @@ section[id] {
     width: 230px;
     padding: 10px 12px;
     font-size: 0.7rem;
+    z-index: 40;
   }
   .what-you-get-tooltip::after {
     top: -14px;
