@@ -2340,8 +2340,8 @@ section[id] {
     font-size: 0.85rem;
   }
   .calendar-header button {
-    width: 26px;
-    height: 26px;
+    width: 16px;
+    height: 16px;
     font-size: 0.8rem;
   }
   .calendar-weekdays {
