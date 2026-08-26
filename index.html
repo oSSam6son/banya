@@ -1,0 +1,936 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Дом-баня в Подольске — Аренда с банным комплексом</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Шапка -->
+    <header class="header">
+      <!-- Верхняя часть с названием -->
+      <div class="header-top">
+        <a href="#" class="logo" id="logo">
+          <div class="logo-icon">
+            <i class="fas fa-fire"></i>
+            <div class="bubbles">
+              <div class="bubble bubble-1"></div>
+              <div class="bubble bubble-2"></div>
+              <div class="bubble bubble-3"></div>
+              <div class="bubble bubble-4"></div>
+              <div class="bubble bubble-5"></div>
+              <div class="bubble bubble-6"></div>
+            </div>
+          </div>
+          <span class="logo-text">U aleksandra</span>
+        </a>
+      </div>
+
+      <!-- Нижняя часть с навигацией -->
+      <div class="header-bottom">
+        <nav class="nav">
+          <a href="#gallery">Галерея</a>
+          <a href="#booking">Бронь</a>
+          <a href="#about">О доме</a>
+          <a href="#map-section">Карта</a>
+          <a href="#reviews">Отзывы</a>
+          <a href="#contact">Контакты</a>
+          <a href="#FAQ">FAQ</a>
+          <button class="btn btn-primary" onclick="scrollToBooking()">
+            Забронировать
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Галерея -->
+    <section id="gallery" class="gallery">
+      <div class="container">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+          "
+        >
+          <h1 class="title">Дом-баня в Подольске</h1>
+          <button class="btn-video" onclick="openVideoModal()">
+            <i class="fas fa-play-circle"></i>
+            Видео приветствие
+          </button>
+        </div>
+        <div class="gallery-meta">
+          <span><i class="fas fa-star"></i> 4.9</span>
+          <span
+            ><i class="fas fa-map-marker-alt"></i> Московская обл.,
+            Подольск</span
+          >
+          <span><i class="fas fa-users"></i> До 10 гостей</span>
+        </div>
+
+        <!-- Навигация по коллажам -->
+        <div class="collage-navigation">
+          <button class="collage-nav-btn prev" onclick="changeCollage(-1)">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="collage-title-container">
+            <h2 class="collage-title" id="collageTitle">Банный комплекс</h2>
+            <div class="collage-dots" id="collageDots"></div>
+          </div>
+          <button class="collage-nav-btn next" onclick="changeCollage(1)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Одно большое фото со стрелками -->
+        <div class="gallery-slider-single">
+          <div
+            class="gallery-slider-single-img"
+            id="gallerySliderSingleImg"
+            onclick="openPhotoModal(globalPhotoIndex)"
+          >
+            <!-- Фото вставится через JS -->
+          </div>
+
+          <button
+            class="gallery-slider-single-btn prev"
+            onclick="changePhotoInCollage(-1)"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button
+            class="gallery-slider-single-btn next"
+            onclick="changePhotoInCollage(1)"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+
+          <div
+            class="gallery-slider-single-counter"
+            id="gallerySliderSingleCounter"
+          >
+            1 / 4
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Модальное окно для просмотра фото (оставь как было) -->
+    <div class="photo-modal" id="photoModal">
+      <span class="photo-modal-close" onclick="closePhotoModal()">&times;</span>
+      <button class="photo-modal-nav prev" onclick="changePhoto(-1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <img src="" alt="Просмотр фото" id="modalImage" />
+      <button class="photo-modal-nav next" onclick="changePhoto(1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <div class="photo-modal-counter" id="photoCounter">1 / 12</div>
+    </div>
+
+    <!-- Бронирование -->
+    <section id="booking" class="booking-section">
+      <div class="container">
+        <h2 class="booking-title">Бронирование</h2>
+
+        <!-- Кнопки выбора типа аренды -->
+        <div class="booking-type-selector" id="bookingTypeSelector">
+          <button
+            class="btn-type btn-type-daily"
+            onclick="selectBookingType('daily')"
+          >
+            <div class="btn-type-icon">
+              <i class="fas fa-sun"></i>
+            </div>
+            <div class="btn-type-text">
+              <span class="btn-type-title">Посуточно</span>
+              <span class="btn-type-desc">Аренда на целый день</span>
+            </div>
+            <div class="btn-type-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </button>
+
+          <button
+            class="btn-type btn-type-hourly"
+            onclick="selectBookingType('hourly')"
+          >
+            <div class="btn-type-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="btn-type-text">
+              <span class="btn-type-title">Почасовое</span>
+              <span class="btn-type-desc">Аренда на несколько часов</span>
+            </div>
+            <div class="btn-type-arrow">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </button>
+        </div>
+
+        <a href="agreement.pdf" target="_blank" class="agreement-link">
+          <i class="fas fa-file-pdf"></i>
+          Пользовательское соглашение
+        </a>
+
+        <!-- Контейнер для формы и календаря -->
+        <div
+          class="booking-calendar-wrapper"
+          id="bookingCalendarWrapper"
+          style="display: none"
+        >
+          <!-- Кнопка назад — над всем -->
+          <button class="btn-back" onclick="goBackToTypeSelector()">
+            <i class="fas fa-arrow-left"></i>
+            Назад
+          </button>
+          <!-- Блок бронирования -->
+          <div class="booking-form-wrapper" id="bookingFormWrapper">
+            <div class="booking-form-header">
+              <h2 id="bookingFormTitle">Посуточная аренда</h2>
+              <span class="what-you-get-link" tabindex="0">
+                <i class="fas fa-gift"></i>
+                Что входит в стоимость?
+                <span
+                  class="what-you-get-tooltip"
+                  id="whatYouGetTooltip"
+                ></span>
+              </span>
+            </div>
+            <div class="booking-form">
+              <div class="field">
+                <label>Заезд</label>
+                <input
+                  type="text"
+                  id="checkIn"
+                  placeholder="ДД.ММ.ГГГГ"
+                  oninput="autoFormatDate(this)"
+                  onchange="validateDateInput(this)"
+                  maxlength="10"
+                />
+              </div>
+
+              <div class="field" id="checkOutField">
+                <label>Выезд</label>
+                <input
+                  type="text"
+                  id="checkOut"
+                  placeholder="ДД.ММ.ГГГГ"
+                  oninput="autoFormatDate(this)"
+                  onchange="validateDateInput(this)"
+                  maxlength="10"
+                />
+              </div>
+
+              <div class="field" id="hoursField" style="display: none">
+                <label>Количество часов</label>
+                <select id="hoursCount">
+                  <option value="3">3 часа (минимум)</option>
+                  <option value="4">4 часа</option>
+                  <option value="5">5 часов</option>
+                  <option value="6">6 часов</option>
+                  <option value="7">7 часов</option>
+                  <option value="8">8 часов</option>
+                  <option value="9">9 часов</option>
+                  <option value="10">10 часов</option>
+                  <option value="11">11 часов</option>
+                  <option value="12">12 часов</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Гости</label>
+                <select id="guestsCount">
+                  <option value="1">1 гость</option>
+                  <option value="2">2 гостя</option>
+                  <option value="3">3 гостя</option>
+                  <option value="4">4 гостя</option>
+                  <option value="5">5 гостей</option>
+                  <option value="6">6 гостей</option>
+                  <option value="7">7 гостей</option>
+                  <option value="8">8 гостей</option>
+                  <option value="9">9 гостей</option>
+                  <option value="10">10 гостей</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Дети (до 18 лет) бесплатно</label>
+                <select id="childrenCount">
+                  <option value="0">Без детей</option>
+                  <option value="1">1 ребенок</option>
+                  <option value="2">2 ребенка</option>
+                  <option value="3">3 ребенка</option>
+                </select>
+              </div>
+
+              <!-- Флажки дополнительных услуг -->
+              <div class="checkbox-group">
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="addPool"
+                    class="extra-service"
+                    value="3500"
+                  />
+                  <i class="fas fa-swimming-pool"></i>
+                  Добавить бассейн
+                  <span class="tooltip-icon" tabindex="0">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="tooltip-text"
+                      >Дополнительная услуга<br />3500р</span
+                    >
+                  </span>
+                </label>
+
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="heatBanya"
+                    class="extra-service"
+                    value="700"
+                  />
+                  <i class="fas fa-fire"></i>
+                  Растопить баню
+                  <span class="tooltip-icon" tabindex="0">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="tooltip-text"
+                      >Дополнительная услуга<br />3500р</span
+                    >
+                  </span>
+                </label>
+              </div>
+
+              <button
+                class="btn btn-primary btn-calculate"
+                onclick="calculatePrice()"
+              >
+                Рассчитать стоимость
+              </button>
+            </div>
+            <div id="priceResult" class="price-result"></div>
+          </div>
+
+          <!-- Календарь -->
+          <div class="calendar-wrapper-inline" id="calendarWrapper">
+            <h2 style="text-align: center">Выберите даты</h2>
+            <p class="calendar-hint" id="calendarHint">
+              Нажмите на дату заезда, затем на дату выезда
+            </p>
+            <div class="calendar" id="calendar"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Дополнительные услуги -->
+    <section id="services" class="services" style="display: none">
+      <div class="container">
+        <h2>Дополнительные услуги</h2>
+        <div class="services-grid">
+          <!-- Банный комплект со счётчиком -->
+          <div class="service-card" data-price="450">
+            <i class="fa-solid fa-bath"></i>
+            <h3>Банный комплект</h3>
+            <p>Полотенце, простынь, тапочки</p>
+            <span class="price">450 ₽ / шт.</span>
+            <div class="counter">
+              <button
+                class="counter-btn minus"
+                onclick="changeServiceCount(this, -1)"
+              >
+                −
+              </button>
+              <span class="counter-value">0</span>
+              <button
+                class="counter-btn plus"
+                onclick="changeServiceCount(this, 1)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Шапочка со счётчиком -->
+          <div class="service-card" data-price="200">
+            <i class="fas fa-hat-wizard"></i>
+            <h3>Шапочка банная</h3>
+            <p>Защита головы от жара в бане</p>
+            <span class="price">200 ₽ / шт.</span>
+            <div class="counter">
+              <button
+                class="counter-btn minus"
+                onclick="changeServiceCount(this, -1)"
+              >
+                −
+              </button>
+              <span class="counter-value">0</span>
+              <button
+                class="counter-btn plus"
+                onclick="changeServiceCount(this, 1)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Веник со счётчиком -->
+          <div class="service-card" data-price="700">
+            <i class="fas fa-leaf"></i>
+            <h3>Веник берёзовый</h3>
+            <p>С оплатой мытья парилки</p>
+            <span class="price">700 ₽ / шт.</span>
+            <div class="counter">
+              <button
+                class="counter-btn minus"
+                onclick="changeServiceCount(this, -1)"
+              >
+                −
+              </button>
+              <span class="counter-value">0</span>
+              <button
+                class="counter-btn plus"
+                onclick="changeServiceCount(this, 1)"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Джакузи (без счётчика) -->
+          <div class="service-card" data-price="1500">
+            <input type="checkbox" class="service-checkbox" value="1500" />
+            <i class="fas fa-hot-tub"></i>
+            <h3>Джакузи</h3>
+            <p>С гидромассажем</p>
+            <span class="price">1 500 ₽</span>
+          </div>
+
+          <!-- Уличный бассейн (без счётчика) -->
+          <div class="service-card" data-price="3500">
+            <input type="checkbox" class="service-checkbox" value="3500" />
+            <i class="fas fa-swimming-pool"></i>
+            <h3>Уличный бассейн</h3>
+            <p>С подогревом (летом)</p>
+            <span class="price">3 500 ₽</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- О доме -->
+    <section id="about" class="about">
+      <div class="container">
+        <h1 style="margin-bottom: 10px">О доме</h1>
+        <div class="about-grid">
+          <div class="about-item">
+            <i class="fas fa-door-open"></i>
+            <span>Количество комнат:</span> <strong>3</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-ruler"></i>
+            <span>Площадь дома:</span> <strong>115 м²</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-tree"></i>
+            <span>Площадь участка:</span> <strong>6 сот.</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-building"></i>
+            <span>Этажей в доме:</span> <strong>2</strong>
+          </div>
+          <div class="about-item about-item-stack">
+            <i class="fas fa-hot-tub"></i>
+            <span>Для отдыха:</span>
+            <strong>баня или сауна, бассейн летний</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-restroom"></i>
+            <span>Санузел:</span> <strong>1 раздельный внутри</strong>
+          </div>
+          <div class="about-item about-item-stack">
+            <i class="fas fa-bolt"></i>
+            <span>Коммуникации:</span>
+            <strong>электричество, газ, отопление, канализация</strong>
+          </div>
+          <div class="about-item about-item-stack">
+            <i class="fas fa-tv"></i>
+            <span>Бытовая техника:</span>
+            <strong
+              >кондиционер, холодильник, плита, микроволновка, телевизор,
+            </strong>
+          </div>
+          <div class="about-item about-item-stack">
+            <i class="fas fa-wifi"></i>
+            <span>Интернет, ТВ, связь:</span>
+            <strong>Wi-Fi, телевидение</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-bed"></i>
+            <span>Комфорт:</span> <strong>чистое постельное белье</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-car"></i>
+            <span>Парковочное место:</span> <strong>1 без навеса</strong>
+          </div>
+          <div class="about-item about-item-stack">
+            <i class="fas fa-road"></i>
+            <span>Транспортная доступность:</span>
+            <strong
+              >асфальтированная дорога, остановка общественного
+              транспорта</strong
+            >
+          </div>
+          <div class="about-item">
+            <i class="fas fa-money-bill"></i>
+            <span>Залог:</span> <strong>5 000 ₽</strong>
+          </div>
+          <div class="about-item">
+            <i class="fas fa-map"></i>
+            <span>Расстояние от МКАД:</span> <strong>16 км</strong>
+          </div>
+        </div>
+
+        <h3 class="sub-title">Правила</h3>
+        <div class="rules-grid">
+          <div class="rule-item">
+            <span>Заезд:</span> <strong>с 15:00</strong>
+          </div>
+          <div class="rule-item">
+            <span>Выезд:</span> <strong>до 12:00</strong>
+          </div>
+          <div class="rule-item">
+            <span>Количество гостей:</span> <strong>10</strong>
+          </div>
+          <div class="rule-item">
+            <span>Можно с детьми:</span> <strong>да</strong>
+          </div>
+          <div class="rule-item">
+            <span>Можно с питомцем:</span> <strong>нет</strong>
+          </div>
+          <div class="rule-item">
+            <span>Можно курить:</span> <strong>нет</strong>
+          </div>
+          <div class="rule-item">
+            <span>Разрешены вечеринки:</span> <strong>да</strong>
+          </div>
+          <div class="rule-item">
+            <span>Есть отчётные документы:</span> <strong>нет</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Карта -->
+    <section id="map-section" class="map-section">
+      <div class="container">
+        <h2>Расположение</h2>
+        <div class="location-info">
+          <p>
+            <i class="fas fa-map-marker-alt"></i> Московская обл., Подольск,
+            Овражный тупик
+          </p>
+          <p><i class="fas fa-road"></i> Варшавское шоссе, 16 км от МКАД</p>
+        </div>
+        <div class="map-container">
+          <div id="yandex-map" style="width: 100%; height: 400px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Описание -->
+    <section class="description" id="description">
+      <div class="container">
+        <h2>Описание</h2>
+        <div class="description-text">
+          <p>🏠 <strong>Уютный дом-баня для комфортного отдыха</strong> 🏠</p>
+          <p>
+            Сдаётся дом-баня для комфортного и культурного отдыха, как
+            посуточно, так и по часам. Чистота (санобработка) дома-бани
+            гарантированная. При заказе пожалуйста будьте внимательны к
+            дополнительным услугам.
+          </p>
+          <p>
+            ✨ <strong>Время заезда:</strong> с 14:00 до 15:00 (в зависимости от
+            готовности)<br />
+            ⏰ <strong>Выезд:</strong> до 12:00 следующего дня
+          </p>
+          <p>
+            🚗 <strong>Отличная транспортная доступность:</strong> удобно
+            добираться как на личном, так и на общественном транспорте.
+          </p>
+          <p>
+            🏡 <strong>На территории:</strong> мангал с навесом и красивые
+            комфортные качели. В доме всё предусмотрено для проведения отдыха с
+            банными процедурами до 8 человек. Спальные комнаты открываются в
+            зависимости от величины оплаты и количества гостей.
+          </p>
+          <p>
+            🔥 <strong>Банный комплекс:</strong> парилка на дровах, джакузи с
+            гидромассажем, бассейн с подсветкой и профессиональной фильтрацией,
+            комфортная душевая, музыкальные колонки с Bluetooth.
+          </p>
+          <p>
+            🏊 <strong>Уличный бассейн:</strong> в тёплое время года, вода
+            подогревается. Время работы с 10:00 до 21:00.
+          </p>
+          <p>
+            💰 <strong>Скидки:</strong> в зависимости от количества людей и
+            времени аренды.
+          </p>
+          <p>
+            📋 <strong>При заезде:</strong> страховой депозит 5 000 ₽ + документ
+            (паспорт или права) в сейфе, или 10 000 ₽ + фото документа.
+          </p>
+          <p>
+            🛍 <strong>Банные комплекты:</strong> полотенце, простынь, тапочки —
+            450 ₽.
+          </p>
+          <p>
+            ⏱ <strong>Почасовая аренда:</strong> минимум 3 часа в будни, 5 часов
+            в праздники и выходные.
+          </p>
+          <p>
+            🏊‍♂️ <strong>Уличный бассейн:</strong> при посуточной аренде доплата 3
+            500 ₽, при почасовой 2 000 ₽/час (минимум 2 часа).
+          </p>
+          <p>
+            🌿 <strong>Веники:</strong> разрешены при оплате 700 ₽ (за полное
+            мытьё парилки).
+          </p>
+          <p>
+            📍 <strong>Расположение:</strong> центр города, частный сектор,
+            много зелени. В пешей доступности река, музей с парком, центральный
+            городской парк с набережной и прокатом лодок. Зимой — лыжный спуск с
+            подъёмниками.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section id="reviews" class="reviews">
+      <div class="container">
+        <h2>Отзывы гостей</h2>
+        <div class="reviews-grid">
+          <div class="review-card">
+            <div class="review-header">
+              <img
+                src="https://via.placeholder.com/50x50/FF6B6B/FFFFFF?text=А"
+                alt="Алексей"
+              />
+              <div>
+                <h3>Алексей</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Отличное место! Баня на дровах — просто сказка. Джакузи работает
+              отлично, бассейн тёплый. Всё чисто и уютно. Рекомендую!"
+            </p>
+            <span class="date">Февраль 2026</span>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <img
+                src="https://via.placeholder.com/50x50/4ECDC4/FFFFFF?text=М"
+                alt="Мария"
+              />
+              <div>
+                <h3>Мария</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Праздновали день рождения — всё прошло отлично! Хозяин помог с
+              организацией, всё подсказал. Парная шикарная, веники отличные!"
+            </p>
+            <span class="date">Ноябрь 2025</span>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <img
+                src="https://via.placeholder.com/50x50/FFD93D/FFFFFF?text=Д"
+                alt="Дмитрий"
+              />
+              <div>
+                <h3>Дмитрий</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Отдыхали компанией 8 человек. Всё продумано до мелочей: музыка,
+              мангал, бассейн. Удобное расположение, рядом речка. Обязательно
+              вернёмся!"
+            </p>
+            <span class="date">Октябрь 2025</span>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <img
+                src="https://via.placeholder.com/50x50/95E1D3/FFFFFF?text=Е"
+                alt="Елена"
+              />
+              <div>
+                <h3>Елена</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Прекрасное место для семейного отдыха. С детьми очень удобно,
+              есть всё необходимое. Чистота идеальная! Баня просто супер!"
+            </p>
+            <span class="date">Июль 2025</span>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <img
+                src="https://via.placeholder.com/50x50/FF6B6B/FFFFFF?text=С"
+                alt="Сергей"
+              />
+              <div>
+                <h3>Сергей</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Отмечали корпоратив. Всё на высшем уровне! Бассейн тёплый, парная
+              отличная. Хозяин очень приветливый, всё показал и рассказал.
+              Компания осталась довольна!"
+            </p>
+            <span class="date">Июнь 2025</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contact" class="contact">
+      <div class="container">
+        <div class="contact-faq-wrapper">
+          <!-- Контакты слева -->
+          <div class="contact-info">
+            <h2 style="margin-bottom: 20px">Контакты</h2>
+            <p>
+              <i class="fas fa-phone"></i>
+              <a href="tel:+79001234567">+7 (900) 123-45-67</a>
+            </p>
+            <p>
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:aleksvolkiv5@mail.com">my mail</a>
+            </p>
+            <p><i class="fas fa-clock"></i> Ежедневно с 9:00 до 22:00</p>
+            <div class="contact-buttons">
+              <a href="https://t.me/whywexist" class="btn-telegram"
+                ><i class="fab fa-telegram-plane"></i> Telegram</a
+              >
+              <a href="https://wa.me/79645041048" class="btn-whatsapp"
+                ><i class="fab fa-whatsapp"></i> WhatsApp</a
+              >
+            </div>
+          </div>
+
+          <!-- FAQ справа -->
+          <div class="faq-section" id="FAQ">
+            <h3>FAQ - Часто Задаваемые Вопросы</h3>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                1. Почему надо подписывать договор, можно без него?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Нет, без договора не работаем. Работаю официально, плачу
+                  налоги. Кроме этого договором мы обезопасиваем друг друга от
+                  нежелательных последствий отдыха, которые к сожалению
+                  случаются, и компенсаций. Для подписания договора у Вас должен
+                  быть действующий гражданский паспорт РФ. На всремя проживаня
+                  паспорт не изымается, с Вашего разрешения делаю фото разворота
+                  и прописки, это нужно мне на всякий случай, а случаи, как уже
+                  говорил, иногда происходят.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                2. Достаточно одного паспорта на компанию, или каждый должен
+                предоставить?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  При заселении от двух человек и более достаточно одного
+                  пасаспорта гражданина РФ, который будет подписывать договор, и
+                  являться старшим в группе за все время проживания.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                3. Что будет, если мы что-то сломаем или повредим?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  К сожалению бывают такие случаи, но это не беда, всему есть
+                  своя цена, это обговаривается по факту, и Вам необходимо будет
+                  оплатить ущерб перед выездом.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                4. Залог только наличкой, и сразу возвращается перед выездом?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Залог может быть наличкой или переводом. Возвращается
+                  только переводом через несколько часов после Вашего выезда.
+                  Поймите правильно, дом большой, Вы хотите поскорей домой, а
+                  чтобы все проверить мне нужно минмиум два часа.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                5. Скидки есть?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Да, скидки для постоянных клиентов есть, при соблюдении
+                  условий. Если Вы посещаете наш дом-баню регулярно, допустим
+                  раз в год, то после пятого посещения мы можем предложить Вам
+                  скидку 5%, после десятого посещения 10%. Если между
+                  посещениями случился перерыв больше года, то система скидок
+                  сбрасываестся и всё заново.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                6. Почему я забронировал, а мест не оказалось? 
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Такое может случиться, за что заренее прошу у Вас прощение за неудобство, и объясню почему так: дело в том, что у меня объявления по аренде этого дома-бани есть на других ресурсах, где в отличии от сайта есть возможность сразу оплатить бронь. Мы работаем над тем, чтобы можно было сразу оплатить бронь с сайта, но пока это не доступно. Поэтому, когда Вы нажали "Забронировать", мне приходит Ваш заказ, я сверяю с другими источниками, и если оплата на Ваши даты уже внесена, то к сожалению я вынужден Вам отказать, за что прошу простить и понять. Чтобы миниммизировать такие казусы прошу Вас по возможности заранее, за неделю, а лучше за две недели ранее бронировать Ваш отдых. Спасибо за понимание.  
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+      <div class="footer-top">
+        <div class="container">
+          <div class="footer-title">
+            <i class="fas fa-fire"></i> U aleksandra
+          </div>
+          <div class="footer-subtitle">Аренда дома-бани в Подольске</div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <!-- Модальное окно оплаты -->
+    <div class="payment-modal" id="paymentModal">
+      <div class="payment-modal-content">
+        <span class="payment-modal-close" onclick="closePaymentModal()"
+          >&times;</span
+        >
+
+        <div class="payment-modal-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+
+        <h2>Ваш заказ</h2>
+
+        <div class="payment-order-summary" id="paymentOrderSummary">
+          <!-- Сюда подставится краткая стоимость -->
+        </div>
+
+        <!-- Форма с именем и телефоном -->
+        <div class="payment-form">
+          <div class="payment-field">
+            <label>Ваше имя</label>
+            <input type="text" id="paymentName" placeholder="Иван" />
+          </div>
+          <div class="payment-field">
+            <label>Телефон</label>
+            <input
+              type="tel"
+              id="paymentPhone"
+              placeholder="+7 (900) 000-00-00"
+            />
+          </div>
+          <button
+            class="btn-payment"
+            id="submitOrderBtn"
+            onclick="submitOrder()"
+          >
+            <span class="spinner" id="submitSpinner"></span>
+            <i class="fab fa-telegram-plane" id="submitIcon"></i>
+            <span class="btn-text">Отправить заявку</span>
+          </button>
+        </div>
+
+        <div class="payment-divider">
+          <span>или</span>
+        </div>
+
+        <p class="payment-social-text">Свяжитесь со мной напрямую:</p>
+
+        <div class="payment-social-buttons">
+          <a href="tel:+79001234567" class="payment-social-btn phone">
+            <i class="fas fa-phone"></i>
+            Позвонить
+          </a>
+          <a
+            href="https://wa.me/79645041048"
+            class="payment-social-btn whatsapp"
+          >
+            <i class="fab fa-whatsapp"></i>
+            WhatsApp
+          </a>
+          <a href="https://t.me/whywexist" class="payment-social-btn telegram">
+            <i class="fab fa-telegram-plane"></i>
+            Telegram
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Модалка видео -->
+    <div class="video-modal" id="videoModal">
+      <div class="video-modal-content">
+        <span class="video-modal-close" onclick="closeVideoModal()"
+          >&times;</span
+        >
+        <video id="videoPlayer" controls autoplay>
+          <source src="video/welcome1.mp4" type="video/mp4" />
+          Ваш браузер не поддерживает видео.
+        </video>
+      </div>
+    </div>
+  </body>
+  <script
+    src="https://api-maps.yandex.ru/2.1/?apikey=15390478-be75-48c7-9a71-2fc0e9beb66e&lang=ru_RU"
+    type="text/javascript"
+  ></script>
+</html>
