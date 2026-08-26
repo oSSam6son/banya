@@ -166,9 +166,9 @@ function renderCalendar(year, month) {
 
   let html = `
     <div class="calendar-header">
-      <button onclick="changeMonth(${year}, ${month}, -1)" style="padding-bottom: 5px">←</button>
+      <button onclick="changeMonth(${year}, ${month}, -1)"><i class="fas fa-chevron-left"></i></button>
       <h3>${MONTHS[month]} ${year}</h3>
-      <button onclick="changeMonth(${year}, ${month}, 1)" style="padding-bottom: 5px">→</button>
+      <button onclick="changeMonth(${year}, ${month}, 1)"><i class="fas fa-chevron-right"></i></button>
     </div>
     <div class="calendar-weekdays">
       <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
