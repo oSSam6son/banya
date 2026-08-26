@@ -636,32 +636,6 @@ function autoFormatDate(input) {
   input.value = value;
 }
 
-// ===== Telegram =====
-const TELEGRAM_BOT_TOKEN = "8880832531:AAGuwmwR8nCyo7LGo0YAop-nznDTRPp1Nnc";
-const TELEGRAM_CHAT_ID = "6507123485";
-
-function sendTelegramMessage(message) {
-  fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      text: message,
-      parse_mode: "HTML",
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.ok) {
-        console.log("Сообщение отправлено");
-        showPaymentSuccess();
-      } else {
-        alert("Ошибка отправки. Попробуйте ещё раз.");
-      }
-    })
-    .catch(() => alert("Ошибка отправки. Попробуйте ещё раз."));
-}
-
 function submitOrder() {
   const name = document.getElementById("paymentName").value.trim();
   const phone = document.getElementById("paymentPhone").value.trim();
