@@ -936,6 +936,7 @@ section[id] {
   gap: 20px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  
 }
 
 .booking-form-header h2 {
@@ -2293,7 +2294,7 @@ section[id] {
     width: 230px;
     padding: 10px 12px;
     font-size: 0.7rem;
-    z-index: 999;
+    z-index: 9999;
   }
   .what-you-get-tooltip::after {
     top: -14px;
@@ -2324,6 +2325,7 @@ section[id] {
   .checkbox-group {
     flex-direction: column;
     gap: 5px;
+    z-index: 1;
   }
   .checkbox-item {
     padding: 8px 10px;
