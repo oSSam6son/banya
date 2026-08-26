@@ -410,12 +410,11 @@ function calculatePrice() {
   let extraPrice = 0;
   const extraList = [];
 
-  document.querySelectorAll(".extra-service:checked").forEach((service) => {
-    const price = parseInt(service.value);
+  document.querySelectorAll(".extra-service:checked").forEach((s) => {
+    const price = parseInt(s.value);
+    const name = s.dataset.name;
     extraPrice += price;
-    extraList.push(
-      `${service.closest(".checkbox-item").textContent.trim()} (${price}₽)`,
-    );
+    extraList.push(`${name} (${price}₽)`);
   });
 
   document.querySelectorAll(".service-card[data-price]").forEach((card) => {
