@@ -957,6 +957,7 @@ section[id] {
   border-radius: 20px;
   transition: all 0.3s;
   cursor: pointer;
+  z-index: 999;
 }
 
 .what-you-get-link:hover {
@@ -2277,15 +2278,12 @@ section[id] {
   .booking-form-header h2 {
     font-size: 1rem;
   }
-
-  .tooltip-icon {
-    z-index: 50;
-  }
   
   .what-you-get-link {
     font-size: 0.7rem;
     padding: 5px 8px;
     border-width: 1.5px;
+    z-index: 999;
   }
   .what-you-get-tooltip {
     left: 0;
@@ -2294,7 +2292,6 @@ section[id] {
     width: 230px;
     padding: 10px 12px;
     font-size: 0.7rem;
-    z-index: 9999;
   }
   .what-you-get-tooltip::after {
     top: -14px;
@@ -2325,7 +2322,6 @@ section[id] {
   .checkbox-group {
     flex-direction: column;
     gap: 5px;
-    z-index: 1;
   }
   .checkbox-item {
     padding: 8px 10px;
