@@ -1486,7 +1486,7 @@ section[id] {
 }
 
 .faq-item.active .faq-answer {
-  max-height: 200px;
+  max-height: 300px;
   transition:
     max-height 0.4s ease,
     padding 0.4s ease;
@@ -1980,12 +1980,12 @@ section[id] {
 /* ===== Адаптивность для телефонов ===== */
 @media (max-width: 768px) {
   body {
-    padding-top: 80px;
+    padding-top: 100px;
     font-size: 14px;
     line-height: 1.5;
   }
   body.scrolled {
-    padding-top: 50px;
+    padding-top: 70px;
   }
 
   .container {
@@ -2103,6 +2103,7 @@ section[id] {
     padding: 6px 12px;
     font-size: 0.7rem;
     height: auto;
+    margin-bottom: 20px;
   }
   .btn-video i {
     font-size: 0.9rem;
@@ -2176,13 +2177,27 @@ section[id] {
   }
 
   /* ===== Модалка видео ===== */
-  .video-modal-content {
-    width: 92%;
+  .video-modal {
+    align-items: center;
+    justify-content: center;
   }
+
+  .video-modal-content {
+    width: 70vw; /* 70% ширины экрана */
+    max-width: 70vw;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .video-modal-content video {
-    max-height: 50vh;
+    width: 100%;
+    max-width: 70vw;
+    max-height: 70vh;
     border-radius: 8px;
   }
+  
   .video-modal-close {
     top: -35px;
     font-size: 1.8rem;
