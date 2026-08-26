@@ -164,6 +164,21 @@ function renderCalendar(year, month) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startingDay = firstDay.getDay();
 
+  const today = new Date();
+  const maxYear = 2026;
+
+  // Если год больше 2026 — показываем декабрь 2026
+  if (year > maxYear) {
+    year = maxYear;
+    month = 11;
+  }
+
+  // Если год меньше текущего — показываем текущий месяц
+  if (year < today.getFullYear()) {
+    year = today.getFullYear();
+    month = today.getMonth();
+  }
+
   let html = `
     <div class="calendar-header">
       <button onclick="changeMonth(${year}, ${month}, -1)"><i class="fas fa-chevron-left"></i></button>
@@ -204,6 +219,19 @@ function renderCalendar(year, month) {
 }
 
 function changeMonth(year, month, delta) {
+  const maxYear = 2026;
+  const maxMonth = 11; // декабрь
+
+  const newDate = new Date(year, month + delta, 1);
+
+  // Если новая дата больше декабря 2026 — не переключаем
+  if (
+    newDate.getFullYear() > maxYear ||
+    (newDate.getFullYear() === maxYear && newDate.getMonth() > maxMonth)
+  ) {
+    return;
+  }
+
   const d = new Date(year, month + delta, 1);
   renderCalendar(d.getFullYear(), d.getMonth());
 }
@@ -578,41 +606,70 @@ function validateDateInput(input) {
   if (!value) return;
 
   const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (!match)
-    return (alert("Введите дату в формате ДД.ММ.ГГГГ"), (input.value = ""));
+  if (!match) {
+    alert("Введите дату в формате ДД.ММ.ГГГГ");
+    input.value = "";
+    return;
+  }
 
   const day = parseInt(match[1]);
   const month = parseInt(match[2]);
   const year = parseInt(match[3]);
 
-  if (month < 1 || month > 12)
-    return (alert("Неверный месяц"), (input.value = ""));
+  // Проверка на год
+  if (year > 2026) {
+    alert("Бронирование доступно только до конца 2026 года");
+    input.value = "";
+    return;
+  }
+
+  // Проверка на месяц
+  if (month < 1 || month > 12) {
+    alert("Неверный месяц");
+    input.value = "";
+    return;
+  }
+
+  // Проверка на день
   const daysInMonth = new Date(year, month, 0).getDate();
-  if (day < 1 || day > daysInMonth)
-    return (alert("Неверный день"), (input.value = ""));
+  if (day < 1 || day > daysInMonth) {
+    alert("Неверный день");
+    input.value = "";
+    return;
+  }
 
   const date = new Date(year, month - 1, day);
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  if (date < now)
-    return (alert("Нельзя выбрать прошедшую дату"), (input.value = ""));
+  if (date < now) {
+    alert("Нельзя выбрать прошедшую дату");
+    input.value = "";
+    return;
+  }
+
+  // Если дата после декабря 2026
+  if (date > new Date(2026, 11, 31)) {
+    alert("Бронирование доступно только до конца 2026 года");
+    input.value = "";
+    return;
+  }
 
   const dateString = formatDate(date);
 
   if (input.id === "checkIn") {
     state.checkIn = dateString;
   } else if (input.id === "checkOut") {
-    if (bookingType === "hourly")
-      return (
-        alert("При почасовой аренде дата выезда не нужна"),
-        (input.value = "")
-      );
-    if (state.checkIn && dateString <= state.checkIn)
-      return (
-        alert("Дата выезда должна быть позже даты заезда"),
-        (input.value = "")
-      );
+    if (bookingType === "hourly") {
+      alert("При почасовой аренде дата выезда не нужна");
+      input.value = "";
+      return;
+    }
+    if (state.checkIn && dateString <= state.checkIn) {
+      alert("Дата выезда должна быть позже даты заезда");
+      input.value = "";
+      return;
+    }
     state.checkOut = dateString;
   }
 
@@ -820,4 +877,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   console.log("Сайт инициализирован");
+});
+
+// Скролл наверх при загрузке
+window.addEventListener("load", function () {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 100);
 });
