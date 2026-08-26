@@ -1646,7 +1646,7 @@ section[id] {
 }
 .payment-modal h2 {
   color: var(--dark);
-  margin-bottom: -20px;
+  margin-bottom: -6px;
 }
 
 .payment-order-summary {
