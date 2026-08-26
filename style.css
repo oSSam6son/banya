@@ -2339,22 +2339,18 @@ section[id] {
   .calendar-header h3 {
     font-size: 0.85rem;
   }
-  .calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 5px;
-  }
 
   .calendar-header button {
     width: 26px;
     height: 26px;
     font-size: 0.8rem;
-    flex-shrink: 0; /* запрещает сжиматься */
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
+
+  .calendar-header button i {
+   font-size: 0.8rem;
+   pointer-events: none;
+  }
+  
   .calendar-weekdays {
     font-size: 0.6rem;
     margin-bottom: 4px;
