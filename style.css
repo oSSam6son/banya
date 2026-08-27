@@ -2930,6 +2930,19 @@ section[id] {
     font-size: 0.9rem;
     margin-top: 8px;
   }
+
+  .admin-range-inputs {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .admin-range-inputs span {
+    display: none;
+  }
+
+  .admin-range-inputs input {
+    width: 100%;
+  }
 }
 
 /* ===== Hover для мышки ===== */
