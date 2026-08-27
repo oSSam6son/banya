@@ -1164,9 +1164,19 @@ section[id] {
 .calendar-day.today {
   border: 2px solid var(--primary);
 }
-.calendar-day.disabled {
+/* Прошедшие даты — белые с серым текстом */
+.calendar-day.past {
   color: #ccc;
   cursor: not-allowed;
+  background: transparent;
+}
+
+/* Заблокированные будущие даты — серый квадрат */
+.calendar-day.blocked {
+  color: #666;
+  cursor: not-allowed;
+  background: #e0e0e0;
+  border-radius: 4px;
 }
 
 /* ===== Услуги ===== */
@@ -2937,7 +2947,7 @@ section[id] {
   }
 
   .admin-range-inputs span {
-    display: none;
+    display: none; /* скрываем тире */
   }
 
   .admin-range-inputs input {
