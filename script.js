@@ -1,6 +1,23 @@
+// ===== Firebase =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBhpABmtMs7AcTanSaw6j97PTKSgvumbjw",
+  authDomain: "banya-podols.firebaseapp.com",
+  projectId: "banya-podols",
+  storageBucket: "banya-podols.firebasestorage.app",
+  messagingSenderId: "1009856434300",
+  appId: "1:1009856434300:web:839aa9584bd3843752b9f9",
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // ===== Состояние =====
 let state = { checkIn: null, checkOut: null, guests: 1, children: 0 };
 let bookingType = null;
+let blockedDates = [];
+
+// ===== Админ =====
+const ADMIN_PASSWORD = "admin123";
 
 // ===== Данные галереи =====
 const galleryData = [
@@ -99,7 +116,7 @@ function initGallery() {
   displayCurrentPhoto();
 }
 
-// ===== Модальное окно фото =====
+// ===== Модалка фото =====
 function openPhotoModal(index) {
   currentPhotoIndex = index >= 0 ? index : globalPhotoIndex;
   updateModalImage();
@@ -167,13 +184,10 @@ function renderCalendar(year, month) {
   const today = new Date();
   const maxYear = 2026;
 
-  // Если год больше 2026 — показываем декабрь 2026
   if (year > maxYear) {
     year = maxYear;
     month = 11;
   }
-
-  // Если год меньше текущего — показываем текущий месяц
   if (year < today.getFullYear()) {
     year = today.getFullYear();
     month = today.getMonth();
@@ -204,10 +218,11 @@ function renderCalendar(year, month) {
 
     if (isTodayDate(date)) className += " today";
     if (date < now) className += " disabled";
+    if (blockedDates.includes(dateString)) className += " disabled";
     if (isSelectedDate(date)) className += " selected";
     if (isInRangeDate(date)) className += " in-range";
 
-    if (date < now) {
+    if (date < now || blockedDates.includes(dateString)) {
       html += `<div class="${className}">${day}</div>`;
       continue;
     }
@@ -220,11 +235,9 @@ function renderCalendar(year, month) {
 
 function changeMonth(year, month, delta) {
   const maxYear = 2026;
-  const maxMonth = 11; // декабрь
-
+  const maxMonth = 11;
   const newDate = new Date(year, month + delta, 1);
 
-  // Если новая дата больше декабря 2026 — не переключаем
   if (
     newDate.getFullYear() > maxYear ||
     (newDate.getFullYear() === maxYear && newDate.getMonth() > maxMonth)
@@ -232,8 +245,7 @@ function changeMonth(year, month, delta) {
     return;
   }
 
-  const d = new Date(year, month + delta, 1);
-  renderCalendar(d.getFullYear(), d.getMonth());
+  renderCalendar(newDate.getFullYear(), newDate.getMonth());
 }
 
 function formatDate(date) {
@@ -264,12 +276,28 @@ function isTodayDate(date) {
   return date.toDateString() === new Date().toDateString();
 }
 
+// Проверка заблокированных дат между двумя датами
+function checkBlockedDatesBetween(startStr, endStr) {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  let current = new Date(start);
+
+  while (current < end) {
+    if (blockedDates.includes(formatDate(current))) {
+      return true;
+    }
+    current = new Date(current.getTime() + 86400000);
+  }
+  return false;
+}
+
 function selectDate(dateString) {
   const date = parseDate(dateString);
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
   if (date < now) return;
+  if (blockedDates.includes(dateString)) return;
 
   const checkIn = document.getElementById("checkIn");
   const checkOut = document.getElementById("checkOut");
@@ -290,6 +318,10 @@ function selectDate(dateString) {
       state.checkIn = dateString;
       checkIn.value = dateString;
     } else {
+      if (checkBlockedDatesBetween(state.checkIn, dateString)) {
+        alert("В выбранном диапазоне есть недоступная дата");
+        return;
+      }
       state.checkOut = dateString;
       checkOut.value = dateString;
     }
@@ -333,20 +365,20 @@ function selectBookingType(type) {
       tooltip.innerHTML = `
         <strong>В базовую стоимость входит:</strong><br />
         • Ухоженная територия 4 сотки <br>
-        • Одно парковочное место на територии, т.е. ваша машина будет внутри периметра <br>
-        • Два парковочных места за територией, т.е. за забором <br>    
+        • Одно парковочное место на територии <br>
+        • Два парковочных места за територией <br>    
         • Мангальная зона с навесом <br>
-        • Скамейка-качеля <br>
-        • Уютный, теплый, двухэтажный просторный дом-баня, где для проведения вечеринок есть следующее: <br>
-          - праздничный стол на 10 человек, а также необходимая посуда; <br>
-          - музыка, c возможностю подключения вашего смартфона по bluetooth; <br>
-          - телевизор с тв программами на 1 этаже (триколор); <br>
-          - три спальные комнаты, каждая комнтата расчитана на 2 персоны и имеет ночной замок (2 этаж); <br>
-          - дополнительно спальные мета на 1 таже (раскладной диван 160х200см) <br>
-          - Чистый набор постельного белья для каждого проживающего; <br>
-          - Чистые полотенца (100х50см) для каждого гостя; <br>
-          - две туалетные комнаты (по одной на этаже); <br>
-          - две душевые комнаты (по одной на этаже). <br>
+        • Скамейка-качеля на 5 мест <br>
+        • Уютный, теплый, двухэтажный просторный дом-баня: <br>
+          - праздничный стол на 10 человек; <br>
+          - музыка с bluetooth; <br>
+          - телевизор (триколор); <br>
+          - три спальные комнаты (2 этаж); <br>
+          - раскладной диван 160х200см (1 этаж); <br>
+          - постельное белье; <br>
+          - полотенца; <br>
+          - две туалетные комнаты; <br>
+          - две душевые комнаты. <br>
       `;
     } else {
       formTitle.textContent = "Почасовая аренда";
@@ -358,15 +390,15 @@ function selectBookingType(type) {
       tooltip.innerHTML = `
         <strong>В стоимость входит:</strong><br>
         • Ухоженная територия 4 сотки; <br>
-        • Одно парковочное место на територии, т.е. ваша машина будет внутри периметра; <br>
-        • Два парковочных места за територией, т.е. за забором; <br>
+        • Одно парковочное место на територии; <br>
+        • Два парковочных места за територией; <br>
         • Мангальная зона с навесом; <br>
-        • Скамейка-качеля; <br>
-        • Уютный, теплый просторный дом-баня (Внимание: второй этаж не доступен при посуточной аренде!), где для проведения вечеринок есть следующее: <br>
-        - праздничный стол на 10 человек, а также необходимая посуда; <br>
-        - музыка, c возможностю подключения вашего смартфона по bluetooth; <br>
-        - телевизор с тв программами на 1 этаже (триколор); <br>
-        - Чистые полотенца (100х50см) для каждого гостя; <br>
+        • Скамейка-качеля на 5 мест; <br>
+        • Уютный, теплый дом-баня (2 этаж не доступен!): <br>
+        - праздничный стол на 10 человек; <br>
+        - музыка с bluetooth; <br>
+        - телевизор (триколор); <br>
+        - полотенца; <br>
         - туалетная и душевая комнаты. <br>
       `;
     }
@@ -380,7 +412,6 @@ function calculatePrice() {
   const guests = parseInt(document.getElementById("guestsCount").value);
   const children = parseInt(document.getElementById("childrenCount").value);
 
-  let basePrice = 18100;
   let totalPrice = 0;
   let periodText = "";
 
@@ -393,15 +424,17 @@ function calculatePrice() {
     );
     if (days <= 0) return alert("Дата выезда должна быть позже даты заезда");
 
-    if (guests > 2) basePrice += (guests - 2) * 1650;
-    totalPrice = basePrice * days;
+    let dailyPrice = 18100;
+    if (guests > 2) dailyPrice += (guests - 2) * 1650;
+    totalPrice = dailyPrice * days;
     periodText = `${state.checkIn} — ${state.checkOut} (${days} дн.)`;
   } else if (bookingType === "hourly") {
     if (!state.checkIn) return alert("Пожалуйста, выберите дату");
 
     const hours = parseInt(document.getElementById("hoursCount").value);
-    if (guests > 2) basePrice += (guests - 2) * 1650;
-    totalPrice = basePrice * hours;
+    let hourlyPrice = 3000;
+    if (guests > 2) hourlyPrice += (guests - 2) * 300;
+    totalPrice = hourlyPrice * hours;
     periodText = `${state.checkIn} (${hours} ч.)`;
   } else {
     return alert("Выберите тип аренды");
@@ -412,9 +445,8 @@ function calculatePrice() {
 
   document.querySelectorAll(".extra-service:checked").forEach((s) => {
     const price = parseInt(s.value);
-    const name = s.dataset.name;
     extraPrice += price;
-    extraList.push(`${name} (${price}₽)`);
+    extraList.push(`${s.dataset.name} (${price}₽)`);
   });
 
   document.querySelectorAll(".service-card[data-price]").forEach((card) => {
@@ -447,7 +479,7 @@ function calculatePrice() {
     <p><strong>Тип аренды:</strong> ${bookingType === "daily" ? "Посуточно" : "Почасовое"}</p>
     <p><strong>Даты:</strong> ${periodText}</p>
     <p><strong>Гости:</strong> ${guests} взрослых + ${children} детей (бесплатно)</p>
-    <p><strong>Базовая стоимость:</strong> ${basePrice}₽/сутки</p>
+    <p><strong>Базовая стоимость:</strong> ${bookingType === "daily" ? "от 18100₽/сутки" : "от 3000₽/час"}</p>
     ${extraList.length ? `<p><strong>Дополнительно:</strong> ${extraList.join(", ")} = ${extraPrice}₽</p>` : ""}
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
       <h2 style="color: #FF5A5F; margin: 0;">Итого: ${totalPrice}₽</h2>
@@ -502,30 +534,6 @@ function initHeaderScroll() {
     { passive: true },
   );
 }
-
-// ===== Обработчики =====
-document.addEventListener("click", (e) => {
-  const modal = document.getElementById("photoModal");
-  if (modal && e.target === modal) closePhotoModal();
-});
-
-document.addEventListener("keydown", function (e) {
-  const modal = document.getElementById("photoModal");
-  const paymentModal = document.getElementById("paymentModal");
-
-  if (e.key === "Escape") {
-    closePhotoModal();
-    closePaymentModal();
-  }
-
-  if (modal?.classList.contains("active")) {
-    if (e.key === "ArrowLeft") changePhoto(-1);
-    if (e.key === "ArrowRight") changePhoto(1);
-  } else if (!paymentModal?.classList.contains("active")) {
-    if (e.key === "ArrowLeft") changePhotoInCollage(-1);
-    if (e.key === "ArrowRight") changePhotoInCollage(1);
-  }
-});
 
 // ===== Счётчик услуг =====
 function changeServiceCount(btn, delta) {
@@ -615,21 +623,18 @@ function validateDateInput(input) {
   const month = parseInt(match[2]);
   const year = parseInt(match[3]);
 
-  // Проверка на год
   if (year > 2026) {
     alert("Бронирование доступно только до конца 2026 года");
     input.value = "";
     return;
   }
 
-  // Проверка на месяц
   if (month < 1 || month > 12) {
     alert("Неверный месяц");
     input.value = "";
     return;
   }
 
-  // Проверка на день
   const daysInMonth = new Date(year, month, 0).getDate();
   if (day < 1 || day > daysInMonth) {
     alert("Неверный день");
@@ -647,7 +652,6 @@ function validateDateInput(input) {
     return;
   }
 
-  // Если дата после декабря 2026
   if (date > new Date(2026, 11, 31)) {
     alert("Бронирование доступно только до конца 2026 года");
     input.value = "";
@@ -655,6 +659,12 @@ function validateDateInput(input) {
   }
 
   const dateString = formatDate(date);
+
+  if (blockedDates.includes(dateString)) {
+    alert("Эта дата заблокирована");
+    input.value = "";
+    return;
+  }
 
   if (input.id === "checkIn") {
     state.checkIn = dateString;
@@ -666,6 +676,11 @@ function validateDateInput(input) {
     }
     if (state.checkIn && dateString <= state.checkIn) {
       alert("Дата выезда должна быть позже даты заезда");
+      input.value = "";
+      return;
+    }
+    if (state.checkIn && checkBlockedDatesBetween(state.checkIn, dateString)) {
+      alert("В выбранном диапазоне есть заблокированная дата");
       input.value = "";
       return;
     }
@@ -692,6 +707,7 @@ function autoFormatDate(input) {
   input.value = value;
 }
 
+// ===== Отправка заявки =====
 function submitOrder() {
   const name = document.getElementById("paymentName").value.trim();
   const phone = document.getElementById("paymentPhone").value.trim();
@@ -707,7 +723,6 @@ function submitOrder() {
     return;
   }
 
-  // Включаем спиннер
   btn.classList.add("loading");
   btn.disabled = true;
 
@@ -730,9 +745,7 @@ function submitOrder() {
 
   fetch("https://formspree.io/f/mkjwadey", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
   })
     .then((response) => {
@@ -762,6 +775,35 @@ function showPaymentSuccess() {
     <p style="color: var(--text-light); margin-bottom: 20px;">Я свяжусь с вами в ближайшее время</p>
     <button class="btn btn-primary" onclick="closePaymentModal()">Закрыть</button>
   `;
+}
+
+function deleteAllBlockedDates() {
+  if (blockedDates.length === 0) {
+    alert("Нет заблокированных дат");
+    return;
+  }
+
+  if (!confirm("Удалить все заблокированные даты?")) {
+    return;
+  }
+
+  db.collection("blockedDates")
+    .get()
+    .then((snapshot) => {
+      const batch = db.batch();
+      snapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      return batch.commit();
+    })
+    .then(() => {
+      loadBlockedDates();
+      alert("Все даты удалены");
+    })
+    .catch((err) => {
+      console.error("Ошибка:", err);
+      alert("Ошибка удаления");
+    });
 }
 
 // ===== Модалка оплаты =====
@@ -816,6 +858,188 @@ function toggleFaq(btn) {
   item.classList.toggle("active");
 }
 
+// ===== Админ-панель =====
+function openAdminModal() {
+  const modal = document.getElementById("adminModal");
+  if (!modal) return;
+
+  const loginScreen = document.getElementById("adminLogin");
+  const panelScreen = document.getElementById("adminPanel");
+
+  loginScreen.style.display = "flex";
+  panelScreen.style.display = "none";
+  document.getElementById("adminPassword").value = "";
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAdminModal() {
+  const modal = document.getElementById("adminModal");
+  if (!modal) return;
+  modal.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function checkAdminPassword() {
+  const password = document.getElementById("adminPassword").value;
+
+  if (password === ADMIN_PASSWORD) {
+    document.getElementById("adminLogin").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    loadBlockedDates();
+  } else {
+    alert("Неверный пароль");
+  }
+}
+
+function loadBlockedDates() {
+  db.collection("blockedDates")
+    .get()
+    .then((snapshot) => {
+      blockedDates = [];
+      snapshot.forEach((doc) => {
+        blockedDates.push(doc.data().date);
+      });
+      renderBlockedDates();
+      const today = new Date();
+      renderCalendar(today.getFullYear(), today.getMonth());
+    })
+    .catch((err) => {
+      console.error("Ошибка загрузки дат:", err);
+    });
+}
+
+function addBlockedDate() {
+  const input = document.getElementById("adminDateInput");
+  const date = input.value.trim();
+
+  if (!date) {
+    alert("Введите дату");
+    return;
+  }
+
+  const match = date.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) {
+    alert("Неверный формат. Используйте ДД.ММ.ГГГГ");
+    return;
+  }
+
+  if (blockedDates.includes(date)) {
+    alert("Эта дата уже заблокирована");
+    return;
+  }
+
+  db.collection("blockedDates")
+    .add({
+      date: date,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    })
+    .then(() => {
+      input.value = "";
+      loadBlockedDates();
+    })
+    .catch((err) => {
+      console.error("Ошибка:", err);
+      alert("Ошибка сохранения");
+    });
+}
+
+function blockDateRange() {
+  const start = document.getElementById("adminDateStart").value.trim();
+  const end = document.getElementById("adminDateEnd").value.trim();
+
+  if (!start || !end) {
+    alert("Введите обе даты");
+    return;
+  }
+
+  const startDate = parseDate(start);
+  const endDate = parseDate(end);
+
+  if (startDate > endDate) {
+    alert("Дата начала должна быть раньше даты окончания");
+    return;
+  }
+
+  const datesToBlock = [];
+  let current = new Date(startDate);
+
+  while (current <= endDate) {
+    datesToBlock.push(formatDate(current));
+    current = new Date(current.getTime() + 86400000);
+  }
+
+  const newDates = datesToBlock.filter((d) => !blockedDates.includes(d));
+
+  if (newDates.length === 0) {
+    alert("Все эти даты уже заблокированы");
+    return;
+  }
+
+  const batch = db.batch();
+  newDates.forEach((date) => {
+    const docRef = db.collection("blockedDates").doc();
+    batch.set(docRef, {
+      date: date,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  });
+
+  batch
+    .commit()
+    .then(() => {
+      document.getElementById("adminDateStart").value = "";
+      document.getElementById("adminDateEnd").value = "";
+      loadBlockedDates();
+      alert(`Заблокировано дат: ${newDates.length}`);
+    })
+    .catch((err) => {
+      console.error("Ошибка:", err);
+      alert("Ошибка сохранения");
+    });
+}
+
+function removeBlockedDate(dateString) {
+  db.collection("blockedDates")
+    .where("date", "==", dateString)
+    .get()
+    .then((snapshot) => {
+      snapshot.forEach((doc) => {
+        doc.ref.delete();
+      });
+    })
+    .then(() => {
+      loadBlockedDates();
+    })
+    .catch((err) => {
+      console.error("Ошибка удаления:", err);
+    });
+}
+
+function renderBlockedDates() {
+  const list = document.getElementById("adminBlockedList");
+  if (!list) return;
+
+  if (blockedDates.length === 0) {
+    list.innerHTML = '<p class="admin-empty">Нет заблокированных дат</p>';
+    return;
+  }
+
+  list.innerHTML = blockedDates
+    .map(
+      (date) => `
+    <div class="admin-blocked-date">
+      <span>${date}</span>
+      <button class="admin-unblock-btn" onclick="removeBlockedDate('${date}')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `,
+    )
+    .join("");
+}
+
 // ===== Tooltip для мобильных =====
 document.addEventListener("click", function (e) {
   const link = e.target.closest(".what-you-get-link");
@@ -831,12 +1055,13 @@ document.addEventListener("click", function (e) {
 
 // ===== Закрытие по фону и Escape =====
 document.addEventListener("click", function (e) {
-  ["photoModal", "paymentModal", "videoModal"].forEach((id) => {
+  ["photoModal", "paymentModal", "videoModal", "adminModal"].forEach((id) => {
     const modal = document.getElementById(id);
     if (modal && e.target === modal) {
       if (id === "photoModal") closePhotoModal();
       if (id === "paymentModal") closePaymentModal();
       if (id === "videoModal") closeVideoModal();
+      if (id === "adminModal") closeAdminModal();
     }
   });
 });
@@ -846,6 +1071,18 @@ document.addEventListener("keydown", function (e) {
     closePhotoModal();
     closePaymentModal();
     closeVideoModal();
+    closeAdminModal();
+  }
+
+  const modal = document.getElementById("photoModal");
+  const paymentModal = document.getElementById("paymentModal");
+
+  if (modal?.classList.contains("active")) {
+    if (e.key === "ArrowLeft") changePhoto(-1);
+    if (e.key === "ArrowRight") changePhoto(1);
+  } else if (!paymentModal?.classList.contains("active")) {
+    if (e.key === "ArrowLeft") changePhotoInCollage(-1);
+    if (e.key === "ArrowRight") changePhotoInCollage(1);
   }
 });
 
@@ -856,6 +1093,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSmoothScroll();
   initHeaderScroll();
   initYandexMap();
+  loadBlockedDates();
 
   document
     .getElementById("guestsCount")
