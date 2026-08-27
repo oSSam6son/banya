@@ -217,8 +217,13 @@ function renderCalendar(year, month) {
     let className = "calendar-day";
 
     if (isTodayDate(date)) className += " today";
-    if (date < now) className += " disabled";
-    if (blockedDates.includes(dateString)) className += " disabled";
+
+    if (date < now) {
+      className += " past";
+    } else if (blockedDates.includes(dateString)) {
+      className += " blocked";
+    }
+
     if (isSelectedDate(date)) className += " selected";
     if (isInRangeDate(date)) className += " in-range";
 
