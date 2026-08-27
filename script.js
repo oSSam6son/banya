@@ -437,13 +437,14 @@ function calculatePrice() {
 
     const hours = parseInt(document.getElementById("hoursCount").value);
     let hourlyPrice = 3500;
-    if (guests > 6);
-    totalPrice = hourlyPrice * hours;
-    periodText = `${state.checkIn} (${hours} ч.)`;
-  } else if (guests === 7 || guests === 8) {
-    hourlyPrice = 4000;
-    totalPrice = hourlyPrice * hours;
-    periodText = `${state.checkIn} (${hours} ч.)`;
+    if (guests > 6) {
+      totalPrice = hourlyPrice * hours;
+      periodText = `${state.checkIn} (${hours} ч.)`;
+    } else if (guests === 7 || guests === 8) {
+      hourlyPrice = 4000;
+      totalPrice = hourlyPrice * hours;
+      periodText = `${state.checkIn} (${hours} ч.)`;
+    }
   } else {
     return alert("Выберите тип аренды");
   }
