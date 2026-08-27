@@ -436,8 +436,12 @@ function calculatePrice() {
     if (!state.checkIn) return alert("Пожалуйста, выберите дату");
 
     const hours = parseInt(document.getElementById("hoursCount").value);
-    let hourlyPrice = 3000;
-    if (guests > 2) hourlyPrice += (guests - 2) * 300;
+    let hourlyPrice = 3500;
+    if (guests > 6);
+    totalPrice = hourlyPrice * hours;
+    periodText = `${state.checkIn} (${hours} ч.)`;
+  } else if (guests === 7 || guests === 8) {
+    hourlyPrice = 4000;
     totalPrice = hourlyPrice * hours;
     periodText = `${state.checkIn} (${hours} ч.)`;
   } else {
