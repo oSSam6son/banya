@@ -816,10 +816,21 @@ function closePaymentModal() {
 // ===== Видео модалка =====
 function openVideoModal() {
   const modal = document.getElementById("videoModal");
+  const video = document.getElementById("videoPlayer");
   if (!modal) return;
 
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
+
+  // Запускаем видео со звуком
+  if (video) {
+    video.muted = false;
+    video.play().catch(() => {
+      // Если не получилось со звуком — пробуем без звука
+      video.muted = true;
+      video.play();
+    });
+  }
 }
 
 function closeVideoModal() {
