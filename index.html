@@ -176,7 +176,7 @@
 
         <a href="agreement.pdf" target="_blank" class="agreement-link">
           <i class="fas fa-file-pdf"></i>
-          Договор аренды
+          Пользовательское соглашение
         </a>
 
         <!-- Контейнер для формы и календаря -->
@@ -326,6 +326,9 @@
               Нажмите на дату заезда, затем на дату выезда
             </p>
             <div class="calendar" id="calendar"></div>
+            <div class="calendar-legend">
+              <span><span class="legend-dot"></span> - недоступно</span>
+            </div>
           </div>
         </div>
       </div>
@@ -744,15 +747,19 @@
 
             <div class="faq-item">
               <button class="faq-question" onclick="toggleFaq(this)">
-                1. Зачем подписывать договор, можно без него?
+                1. Почему надо подписывать договор, можно без него?
                 <i class="fas fa-chevron-down"></i>
               </button>
               <div class="faq-answer">
                 <p>
-                  Без договора не работаем. Работаю официально, плачу
-                  налоги. Договор - это гарант нежелательных последствий отдыха.
-                  Для подписания договора у Вас должен быть действующий гражданский паспорт РФ. 
-                  На всремя проживаня паспорт ... (нужно прописать действия с паспортом и договором)
+                  Нет, без договора не работаем. Работаю официально, плачу
+                  налоги. Кроме этого договором мы обезопасиваем друг друга от
+                  нежелательных последствий отдыха, которые к сожалению
+                  случаются, и компенсаций. Для подписания договора у Вас должен
+                  быть действующий гражданский паспорт РФ. На всремя проживаня
+                  паспорт не изымается, с Вашего разрешения делаю фото разворота
+                  и прописки, это нужно мне на всякий случай, а случаи, как уже
+                  говорил, иногда происходят.
                 </p>
               </div>
             </div>
@@ -765,7 +772,9 @@
               </button>
               <div class="faq-answer">
                 <p>
-                  Достаточно одного пасаспорта совершеннолетнего гражданина РФ, который будет подписывать договор.
+                  При заселении от двух человек и более достаточно одного
+                  пасаспорта гражданина РФ, который будет подписывать договор, и
+                  являться старшим в группе за все время проживания.
                 </p>
               </div>
             </div>
@@ -777,7 +786,8 @@
               </button>
               <div class="faq-answer">
                 <p>
-                  Ущерб обговаривается по факту, и Вам необходимо будет
+                  К сожалению бывают такие случаи, но это не беда, всему есть
+                  своя цена, это обговаривается по факту, и Вам необходимо будет
                   оплатить ущерб перед выездом.
                 </p>
               </div>
@@ -790,9 +800,10 @@
               </button>
               <div class="faq-answer">
                 <p>
-                  Залог может быть наличкой или переводом. Возвращается
-                  только переводом через несколько часов после Вашего выезда.
-                  
+                  Залог может быть наличкой или переводом. Возвращается только
+                  переводом через несколько часов после Вашего выезда. Поймите
+                  правильно, дом большой, Вы хотите поскорей домой, а чтобы все
+                  проверить мне нужно минмиум два часа.
                 </p>
               </div>
             </div>
@@ -804,11 +815,35 @@
               </button>
               <div class="faq-answer">
                 <p>
-                  Да, есть скидки для постоянных клиентов, при соблюдении
-                  условий. Если Вы посещаете наш дом-баню регулярно, то после пятого посещения
-                  мы можем предложить Вам скидку 5%, после десятого посещения 10%. Если между
+                  Да, скидки для постоянных клиентов есть, при соблюдении
+                  условий. Если Вы посещаете наш дом-баню регулярно, допустим
+                  раз в год, то после пятого посещения мы можем предложить Вам
+                  скидку 5%, после десятого посещения 10%. Если между
                   посещениями случился перерыв больше года, то система скидок
-                  сбрасываестся.
+                  сбрасываестся и всё заново.
+                </p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-question" onclick="toggleFaq(this)">
+                6. Почему я забронировал, а мест не оказалось?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Такое может случиться, за что заренее прошу у Вас прощение за
+                  неудобство, и объясню почему так: дело в том, что у меня
+                  объявления по аренде этого дома-бани есть на других ресурсах,
+                  где в отличии от сайта есть возможность сразу оплатить бронь.
+                  Мы работаем над тем, чтобы можно было сразу оплатить бронь с
+                  сайта, но пока это не доступно. Поэтому, когда Вы нажали
+                  "Забронировать", мне приходит Ваш заказ, я сверяю с другими
+                  источниками, и если оплата на Ваши даты уже внесена, то к
+                  сожалению я вынужден Вам отказать, за что прошу простить и
+                  понять. Чтобы миниммизировать такие казусы прошу Вас по
+                  возможности заранее, за неделю, а лучше за две недели ранее
+                  бронировать Ваш отдых. Спасибо за понимание.
                 </p>
               </div>
             </div>
@@ -822,13 +857,19 @@
       <div class="footer-top">
         <div class="container">
           <div class="footer-title">
-            <i class="fas fa-fire"></i> U aleksandra
+            <i class="fas fa-fire"></i> У Александра
           </div>
           <div class="footer-subtitle">Аренда дома-бани в Подольске</div>
+          <!-- Кнопка админки -->
+          <button class="admin-trigger" onclick="openAdminModal()">
+            <i class="fas fa-lock"></i>
+          </button>
         </div>
       </div>
     </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
     <!-- Модальное окно оплаты -->
     <div class="payment-modal" id="paymentModal">
@@ -907,6 +948,78 @@
           <source src="video/welcome1.mp4" type="video/mp4" />
           Ваш браузер не поддерживает видео.
         </video>
+      </div>
+    </div>
+    <!-- Админ-модалка -->
+    <div class="admin-modal" id="adminModal">
+      <div class="admin-modal-content">
+        <span class="admin-modal-close" onclick="closeAdminModal()"
+          >&times;</span
+        >
+
+        <!-- Экран входа -->
+        <div class="admin-login" id="adminLogin">
+          <h2>Вход в админ-панель</h2>
+          <input
+            type="password"
+            id="adminPassword"
+            placeholder="Пароль"
+            onkeydown="if (event.key === 'Enter') checkAdminPassword();"
+          />
+          <button class="btn btn-primary" onclick="checkAdminPassword()">
+            Войти
+          </button>
+        </div>
+
+        <!-- Экран управления -->
+        <div class="admin-panel" id="adminPanel" style="display: none">
+          <h2>Админ-панель</h2>
+          <p class="admin-subtitle">Управление заблокированными датами</p>
+
+          <!-- Блокировка диапазона -->
+          <div class="admin-range">
+            <div class="admin-range-inputs">
+              <input
+                type="text"
+                id="adminDateStart"
+                placeholder="С ДД.ММ.ГГГГ"
+                maxlength="10"
+                oninput="autoFormatDate(this)"
+              />
+              <span>—</span>
+              <input
+                type="text"
+                id="adminDateEnd"
+                placeholder="По ДД.ММ.ГГГГ"
+                maxlength="10"
+                oninput="autoFormatDate(this)"
+              />
+            </div>
+            <button class="btn btn-primary" onclick="blockDateRange()">
+              <i class="fas fa-lock"></i> Заблокировать
+            </button>
+          </div>
+
+          <!-- Одиночная дата -->
+          <div class="admin-add-date">
+            <input
+              type="text"
+              id="adminDateInput"
+              placeholder="ДД.ММ.ГГГГ"
+              maxlength="10"
+              oninput="autoFormatDate(this)"
+            />
+            <button class="btn btn-primary" onclick="addBlockedDate()">
+              <i class="fas fa-lock"></i> Заблокировать
+            </button>
+          </div>
+
+          <!-- Список -->
+          <div class="admin-blocked-list" id="adminBlockedList"></div>
+          <button class="btn-delete-all" onclick="deleteAllBlockedDates()">
+            <i class="fas fa-trash"></i> Удалить все
+          </button>
+        </div>
       </div>
     </div>
   </body>
