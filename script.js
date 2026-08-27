@@ -276,7 +276,6 @@ function isTodayDate(date) {
   return date.toDateString() === new Date().toDateString();
 }
 
-// Проверка заблокированных дат между двумя датами
 function checkBlockedDatesBetween(startStr, endStr) {
   const start = parseDate(startStr);
   const end = parseDate(endStr);
@@ -319,7 +318,7 @@ function selectDate(dateString) {
       checkIn.value = dateString;
     } else {
       if (checkBlockedDatesBetween(state.checkIn, dateString)) {
-        alert("В выбранном диапазоне есть недоступная дата");
+        alert("В выбранном диапазоне есть заблокированная дата");
         return;
       }
       state.checkOut = dateString;
@@ -607,7 +606,34 @@ function initYandexMap() {
   });
 }
 
-// ===== Ручной ввод даты =====
+// ===== Автоподстановка даты (исправленная) =====
+function autoFormatDate(input) {
+  // Сохраняем позицию курсора
+  const cursorPos = input.selectionStart;
+
+  // Убираем все нецифровые символы
+  let digits = input.value.replace(/\D/g, "");
+
+  // Ограничиваем 8 цифрами
+  if (digits.length > 8) digits = digits.slice(0, 8);
+
+  // Форматируем только если есть цифры
+  let formatted = "";
+  if (digits.length > 0) {
+    formatted = digits.slice(0, 2);
+  }
+  if (digits.length > 2) {
+    formatted += "." + digits.slice(2, 4);
+  }
+  if (digits.length > 4) {
+    formatted += "." + digits.slice(4, 8);
+  }
+
+  // Просто ставим значение
+  input.value = formatted;
+}
+
+// ===== Ручной ввод даты (исправленный) =====
 function validateDateInput(input) {
   const value = input.value.trim();
   if (!value) return;
@@ -691,22 +717,6 @@ function validateDateInput(input) {
   renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
 }
 
-// ===== Автоподстановка =====
-function autoFormatDate(input) {
-  let value = input.value.replace(/\D/g, "");
-  if (value.length > 8) value = value.slice(0, 8);
-  if (value.length >= 2) value = value.slice(0, 2) + "." + value.slice(2);
-  if (value.length >= 5) value = value.slice(0, 5) + "." + value.slice(5);
-  if (value.length === 8) {
-    const parts = value.split(".");
-    if (parts[2] && parts[2].length === 2) {
-      parts[2] = "20" + parts[2];
-      value = parts.join(".");
-    }
-  }
-  input.value = value;
-}
-
 // ===== Отправка заявки =====
 function submitOrder() {
   const name = document.getElementById("paymentName").value.trim();
@@ -775,35 +785,6 @@ function showPaymentSuccess() {
     <p style="color: var(--text-light); margin-bottom: 20px;">Я свяжусь с вами в ближайшее время</p>
     <button class="btn btn-primary" onclick="closePaymentModal()">Закрыть</button>
   `;
-}
-
-function deleteAllBlockedDates() {
-  if (blockedDates.length === 0) {
-    alert("Нет заблокированных дат");
-    return;
-  }
-
-  if (!confirm("Удалить все заблокированные даты?")) {
-    return;
-  }
-
-  db.collection("blockedDates")
-    .get()
-    .then((snapshot) => {
-      const batch = db.batch();
-      snapshot.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-      return batch.commit();
-    })
-    .then(() => {
-      loadBlockedDates();
-      alert("Все даты удалены");
-    })
-    .catch((err) => {
-      console.error("Ошибка:", err);
-      alert("Ошибка удаления");
-    });
 }
 
 // ===== Модалка оплаты =====
@@ -901,6 +882,16 @@ function loadBlockedDates() {
       snapshot.forEach((doc) => {
         blockedDates.push(doc.data().date);
       });
+
+      // Сортировка как даты
+      blockedDates.sort((a, b) => {
+        const parse = (s) => {
+          const parts = s.split(".");
+          return new Date(parts[2], parts[1] - 1, parts[0]);
+        };
+        return parse(a) - parse(b);
+      });
+
       renderBlockedDates();
       const today = new Date();
       renderCalendar(today.getFullYear(), today.getMonth());
@@ -908,6 +899,31 @@ function loadBlockedDates() {
     .catch((err) => {
       console.error("Ошибка загрузки дат:", err);
     });
+}
+
+// Проверка валидности даты для админки
+function isValidAdminDate(dateString) {
+  const match = dateString.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return false;
+
+  const day = parseInt(match[1]);
+  const month = parseInt(match[2]);
+  const year = parseInt(match[3]);
+
+  if (year > 2026 || year < new Date().getFullYear()) return false;
+  if (month < 1 || month > 12) return false;
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  if (day < 1 || day > daysInMonth) return false;
+
+  const date = new Date(year, month - 1, day);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  if (date < now) return false;
+  if (date > new Date(2026, 11, 31)) return false;
+
+  return true;
 }
 
 function addBlockedDate() {
@@ -919,9 +935,9 @@ function addBlockedDate() {
     return;
   }
 
-  const match = date.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-  if (!match) {
-    alert("Неверный формат. Используйте ДД.ММ.ГГГГ");
+  if (!isValidAdminDate(date)) {
+    alert("Неверная дата. Используйте формат ДД.ММ.ГГГГ");
+    input.value = "";
     return;
   }
 
@@ -951,6 +967,11 @@ function blockDateRange() {
 
   if (!start || !end) {
     alert("Введите обе даты");
+    return;
+  }
+
+  if (!isValidAdminDate(start) || !isValidAdminDate(end)) {
+    alert("Неверные даты. Используйте формат ДД.ММ.ГГГГ");
     return;
   }
 
@@ -1014,6 +1035,35 @@ function removeBlockedDate(dateString) {
     })
     .catch((err) => {
       console.error("Ошибка удаления:", err);
+    });
+}
+
+function deleteAllBlockedDates() {
+  if (blockedDates.length === 0) {
+    alert("Нет заблокированных дат");
+    return;
+  }
+
+  if (!confirm("Удалить все заблокированные даты?")) {
+    return;
+  }
+
+  db.collection("blockedDates")
+    .get()
+    .then((snapshot) => {
+      const batch = db.batch();
+      snapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      return batch.commit();
+    })
+    .then(() => {
+      loadBlockedDates();
+      alert("Все даты удалены");
+    })
+    .catch((err) => {
+      console.error("Ошибка:", err);
+      alert("Ошибка удаления");
     });
 }
 
