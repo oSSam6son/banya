@@ -307,17 +307,40 @@ function selectDate(dateString) {
   const checkOut = document.getElementById("checkOut");
 
   if (bookingType === "hourly") {
+    if (state.checkIn === dateString) {
+      state.checkIn = null;
+      checkIn.value = "";
+      const parts = dateString.split(".");
+      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      return;
+    }
     state.checkIn = dateString;
     state.checkOut = null;
     checkIn.value = dateString;
     checkOut.value = "";
   } else if (!state.checkIn || (state.checkIn && state.checkOut)) {
+    if (state.checkIn === dateString) {
+      state.checkIn = null;
+      state.checkOut = null;
+      checkIn.value = "";
+      checkOut.value = "";
+      const parts = dateString.split(".");
+      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      return;
+    }
     state.checkIn = dateString;
     state.checkOut = null;
     checkIn.value = dateString;
     checkOut.value = "";
   } else if (state.checkIn && !state.checkOut) {
     const checkInDate = parseDate(state.checkIn);
+    if (dateString === state.checkIn) {
+      state.checkIn = null;
+      checkIn.value = "";
+      const parts = dateString.split(".");
+      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      return;
+    }
     if (date <= checkInDate) {
       state.checkIn = dateString;
       checkIn.value = dateString;
@@ -334,9 +357,6 @@ function selectDate(dateString) {
   if (state.checkIn) {
     const parts = state.checkIn.split(".");
     renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
-  } else {
-    const currentDate = new Date();
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
   }
 }
 
@@ -369,20 +389,19 @@ function selectBookingType(type) {
       tooltip.innerHTML = `
         <strong>В базовую стоимость входит:</strong><br />
         • Ухоженная територия 4 сотки <br>
-        • Одно парковочное место на територии <br>
-        • Два парковочных места за територией <br>    
+        • Три парковочных места за територией <br>    
         • Мангальная зона с навесом <br>
-        • Скамейка-качеля на 5 мест <br>
+        • Скамейка-качеля на 3 мест <br>
         • Уютный, теплый, двухэтажный просторный дом-баня: <br>
-          - праздничный стол на 10 человек; <br>
-          - музыка с bluetooth; <br>
+          - праздничный стол на 8 человек; <br>
+          - музыка по bluetooth; <br>
           - телевизор (триколор); <br>
           - три спальные комнаты (2 этаж); <br>
           - раскладной диван 160х200см (1 этаж); <br>
           - постельное белье; <br>
           - полотенца; <br>
-          - две туалетные комнаты; <br>
-          - две душевые комнаты. <br>
+          - туалетная комната; <br>
+          - душевая комната. <br>
       `;
     } else {
       formTitle.textContent = "Почасовая аренда";
@@ -394,16 +413,17 @@ function selectBookingType(type) {
       tooltip.innerHTML = `
         <strong>В стоимость входит:</strong><br>
         • Ухоженная територия 4 сотки; <br>
-        • Одно парковочное место на територии; <br>
-        • Два парковочных места за територией; <br>
+        • Три парковочных места за територией; <br>
         • Мангальная зона с навесом; <br>
-        • Скамейка-качеля на 5 мест; <br>
-        • Уютный, теплый дом-баня (2 этаж не доступен!): <br>
-        - праздничный стол на 10 человек; <br>
-        - музыка с bluetooth; <br>
+        • Скамейка-качеля на 3 мест; <br>
+        • Уютный, теплый, двухэтажный просторный дом-баня: <br>
+        - праздничный стол на 8 человек; <br>
+        - музыка по bluetooth; <br>
         - телевизор (триколор); <br>
-        - полотенца; <br>
         - туалетная и душевая комнаты. <br>
+        - джакузи с гидромассажем. <br>
+        - бассейн. <br>
+        - обливное устройство. <br>
       `;
     }
 
@@ -418,6 +438,7 @@ function calculatePrice() {
 
   let totalPrice = 0;
   let periodText = "";
+  let basePriceText = "";
 
   if (bookingType === "daily") {
     if (!state.checkIn || !state.checkOut)
@@ -428,23 +449,35 @@ function calculatePrice() {
     );
     if (days <= 0) return alert("Дата выезда должна быть позже даты заезда");
 
-    let dailyPrice = 18100;
-    if (guests > 2) dailyPrice += (guests - 2) * 1650;
+    let dailyPrice = 17500;
+    if (guests >= 3) {
+      dailyPrice += (guests - 2) * 1600;
+    }
+
     totalPrice = dailyPrice * days;
-    periodText = `${state.checkIn} — ${state.checkOut} (${days} дн.)`;
+
+    // Бонус -3000₽ при заказе от 3 дней
+    if (days >= 3) {
+      totalPrice -= 3000;
+    }
+
+    periodText = `${state.checkIn} — ${state.checkOut} (${days} нч.)`;
+    basePriceText = `${dailyPrice}₽/сутки`;
   } else if (bookingType === "hourly") {
     if (!state.checkIn) return alert("Пожалуйста, выберите дату");
 
     const hours = parseInt(document.getElementById("hoursCount").value);
-    let hourlyPrice = 3500;
-    if (guests > 6) {
-      totalPrice = hourlyPrice * hours;
-      periodText = `${state.checkIn} (${hours} ч.)`;
-    } else if (guests === 7 || guests === 8) {
+
+    let hourlyPrice;
+    if (guests <= 6) {
+      hourlyPrice = 3500;
+    } else {
       hourlyPrice = 4000;
-      totalPrice = hourlyPrice * hours;
-      periodText = `${state.checkIn} (${hours} ч.)`;
     }
+
+    totalPrice = hourlyPrice * hours;
+    periodText = `${state.checkIn} (${hours} ч.)`;
+    basePriceText = `${hourlyPrice}₽/час (${guests <= 6 ? "до 6 гостей" : "7-8 гостей"})`;
   } else {
     return alert("Выберите тип аренды");
   }
@@ -488,7 +521,7 @@ function calculatePrice() {
     <p><strong>Тип аренды:</strong> ${bookingType === "daily" ? "Посуточно" : "Почасовое"}</p>
     <p><strong>Даты:</strong> ${periodText}</p>
     <p><strong>Гости:</strong> ${guests} взрослых + ${children} детей (бесплатно)</p>
-    <p><strong>Базовая стоимость:</strong> ${bookingType === "daily" ? "от 18100₽/сутки" : "от 3000₽/час"}</p>
+    <p><strong>Базовая стоимость:</strong> ${basePriceText}</p>
     ${extraList.length ? `<p><strong>Дополнительно:</strong> ${extraList.join(", ")} = ${extraPrice}₽</p>` : ""}
     <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
       <h2 style="color: #FF5A5F; margin: 0;">Итого: ${totalPrice}₽</h2>
@@ -1185,11 +1218,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   console.log("Сайт инициализирован");
-});
-
-// Скролл наверх при загрузке
-window.addEventListener("load", function () {
-  setTimeout(() => {
-    window.scrollTo(0, 0);
-  }, 100);
 });
