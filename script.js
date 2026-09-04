@@ -174,7 +174,9 @@ function initCalendar() {
 }
 
 function renderCalendar(year, month) {
-  const calendar = document.getElementById("calendar");
+  const calendar =
+    document.getElementById("calendar") ||
+    document.getElementById("mobileCalendar");
   if (!calendar) return;
 
   const firstDay = new Date(year, month, 0);
@@ -311,7 +313,7 @@ function selectDate(dateString) {
       state.checkIn = null;
       checkIn.value = "";
       const parts = dateString.split(".");
-      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
       return;
     }
     state.checkIn = dateString;
@@ -325,7 +327,7 @@ function selectDate(dateString) {
       checkIn.value = "";
       checkOut.value = "";
       const parts = dateString.split(".");
-      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
       return;
     }
     state.checkIn = dateString;
@@ -338,7 +340,7 @@ function selectDate(dateString) {
       state.checkIn = null;
       checkIn.value = "";
       const parts = dateString.split(".");
-      renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
       return;
     }
     if (date <= checkInDate) {
@@ -356,7 +358,21 @@ function selectDate(dateString) {
 
   if (state.checkIn) {
     const parts = state.checkIn.split(".");
-    renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+    refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
+  }
+}
+
+function refreshCalendars() {
+  if (state.checkIn) {
+    const parts = state.checkIn.split(".");
+    const year = parseInt(parts[2]);
+    const month = parseInt(parts[1]) - 1;
+    renderCalendar(year, month);
+    renderMobileCalendar();
+  } else {
+    const today = new Date();
+    renderCalendar(today.getFullYear(), today.getMonth());
+    renderMobileCalendar();
   }
 }
 
@@ -432,7 +448,7 @@ function selectBookingType(type) {
   }, 300);
 }
 
-function calculatePrice() {
+function calculatePrice(shouldScroll = true) {
   const guests = parseInt(document.getElementById("guestsCount").value);
   const children = parseInt(document.getElementById("childrenCount").value);
 
@@ -536,10 +552,65 @@ function calculatePrice() {
     </div>
   `;
 
-  setTimeout(() => {
-    const payBtn = resultDiv.querySelector(".btn-payment");
-    if (payBtn) payBtn.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 300);
+  if (shouldScroll) {
+    setTimeout(() => {
+      const payBtn = resultDiv.querySelector(".btn-payment");
+      if (payBtn)
+        payBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  }
+}
+
+// ===== Мобильный календарь =====
+function openMobileCalendar() {
+  const modal = document.getElementById("mobileCalendarModal");
+  if (!modal) return;
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  // Рендерим календарь в мобильную модалку
+  renderMobileCalendar();
+}
+
+function closeMobileCalendar() {
+  const modal = document.getElementById("mobileCalendarModal");
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function renderMobileCalendar() {
+  const container = document.getElementById("mobileCalendar");
+  if (!container) return;
+
+  const today = new Date();
+
+  // Используем текущую логику рендера, но для мобильного контейнера
+  const year = today.getFullYear();
+  const month = today.getMonth();
+
+  // Если есть выбранная дата заезда — показываем её месяц
+  let renderYear = year;
+  let renderMonth = month;
+
+  if (state.checkIn) {
+    const parts = state.checkIn.split(".");
+    renderYear = parseInt(parts[2]);
+    renderMonth = parseInt(parts[1]) - 1;
+  }
+
+  // Копируем рендер в мобильный контейнер
+  const originalCalendar = document.getElementById("calendar");
+  const mobileCalendar = document.getElementById("mobileCalendar");
+
+  if (mobileCalendar) {
+    // Временно меняем ID для рендера
+    mobileCalendar.id = "calendar";
+    renderCalendar(renderYear, renderMonth);
+    mobileCalendar.id = "mobileCalendar";
+  }
 }
 
 // ===== Плавный скролл =====
@@ -584,6 +655,9 @@ function changeServiceCount(btn, delta) {
   let count = Math.max(0, Math.min(5, parseInt(valueEl.textContent) + delta));
   valueEl.textContent = count;
   card.style.border = count > 0 ? "2px solid var(--primary)" : "none";
+
+  // Автоматически пересчитываем цену
+  autoUpdatePrice();
 }
 
 // ===== Назад =====
@@ -651,29 +725,48 @@ function initYandexMap() {
 
 // ===== Автоподстановка даты (исправленная) =====
 function autoFormatDate(input) {
-  // Сохраняем позицию курсора
-  const cursorPos = input.selectionStart;
+  // Сохраняем всё что пользователь ввёл (цифры и точки)
+  let value = input.value;
 
-  // Убираем все нецифровые символы
-  let digits = input.value.replace(/\D/g, "");
+  // Убираем только недопустимые символы (буквы, пробелы, слэши и т.д.)
+  value = value.replace(/[^\d.]/g, "");
 
-  // Ограничиваем 8 цифрами
-  if (digits.length > 8) digits = digits.slice(0, 8);
+  // Убираем дублирующиеся точки
+  value = value.replace(/\.+/g, ".");
 
-  // Форматируем только если есть цифры
-  let formatted = "";
-  if (digits.length > 0) {
-    formatted = digits.slice(0, 2);
+  // Убираем точку в начале
+  if (value.startsWith(".")) value = value.slice(1);
+
+  // Ограничиваем длину 10 символов (ДД.ММ.ГГГГ)
+  if (value.length > 10) value = value.slice(0, 10);
+
+  // Если пользователь вводит только цифры — автоматически ставим точки
+  const digitsOnly = value.replace(/\./g, "");
+  if (digitsOnly.length > 2 && !value.includes(".")) {
+    value = digitsOnly.slice(0, 2) + "." + digitsOnly.slice(2);
   }
-  if (digits.length > 2) {
-    formatted += "." + digits.slice(2, 4);
-  }
-  if (digits.length > 4) {
-    formatted += "." + digits.slice(4, 8);
+  if (digitsOnly.length > 4 && value.split(".").length === 2) {
+    value =
+      digitsOnly.slice(0, 2) +
+      "." +
+      digitsOnly.slice(2, 4) +
+      "." +
+      digitsOnly.slice(4);
   }
 
-  // Просто ставим значение
-  input.value = formatted;
+  input.value = value;
+}
+
+function autoUpdatePrice() {
+  // Проверяем, что форма уже показана
+  const wrapper = document.getElementById("bookingCalendarWrapper");
+  if (!wrapper || wrapper.style.display === "none") return;
+
+  // Проверяем, что есть даты
+  if (!state.checkIn) return;
+
+  // Вызываем расчёт
+  calculatePrice(false);
 }
 
 // ===== Ручной ввод даты (исправленный) =====
@@ -1199,6 +1292,20 @@ document.addEventListener("DOMContentLoaded", () => {
   initYandexMap();
   loadBlockedDates();
 
+  // Показываем кнопку календаря только на мобильных
+  if (window.innerWidth <= 768) {
+    document.getElementById("mobileCalendarTrigger").style.display = "flex";
+  } else {
+    document.getElementById("mobileCalendarTrigger").style.display = "none";
+  }
+
+  // Закрытие мобильного календаря по фону
+  document
+    .getElementById("mobileCalendarModal")
+    ?.addEventListener("click", function (e) {
+      if (e.target === this) closeMobileCalendar();
+    });
+
   document
     .getElementById("guestsCount")
     ?.addEventListener(
@@ -1217,5 +1324,27 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  console.log("Сайт инициализирован");
+  document.querySelectorAll(".extra-service").forEach((cb) => {
+    cb.addEventListener("change", autoUpdatePrice);
+  });
+
+  document.querySelectorAll(".service-checkbox").forEach((cb) => {
+    cb.addEventListener("change", autoUpdatePrice);
+  });
+
+  // Автопересчёт при изменении количества гостей
+  document.getElementById("guestsCount")?.addEventListener("change", () => {
+    state.guests = parseInt(document.getElementById("guestsCount").value);
+    autoUpdatePrice();
+  });
+
+  document.getElementById("childrenCount")?.addEventListener("change", () => {
+    state.children = parseInt(document.getElementById("childrenCount").value);
+    autoUpdatePrice();
+  });
+
+  // Автопересчёт при изменении часов
+  document
+    .getElementById("hoursCount")
+    ?.addEventListener("change", autoUpdatePrice);
 });
