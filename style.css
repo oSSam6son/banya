@@ -2707,26 +2707,6 @@ section[id] {
     display: none;
   }
 
-  /* Плавающая кнопка календаря */
-  .mobile-calendar-trigger {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: var(--white);
-    border: none;
-    cursor: pointer;
-    font-size: 1.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.5);
-    z-index: 900;
-  }
-
   /* Мобильная модалка календаря */
   .mobile-calendar-modal {
     display: none;
@@ -3060,44 +3040,7 @@ section[id] {
   .admin-range-inputs input {
     width: 100%;
   }
-}
 
-/* ===== Hover для мышки ===== */
-@media (hover: hover) {
-  .nav a:hover {
-    background: #ff6b35;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-  }
-}
-
-/* ===== Active для тач ===== */
-@media (hover: none) {
-  .nav a:active {
-    background: #ff6b35;
-    color: white;
-  }
-  .btn-type:active {
-    border-color: var(--primary);
-  }
-  .btn-type-daily:active {
-    border-color: #ff8c00;
-  }
-  .btn-type-hourly:active {
-    border-color: #2ec4b6;
-  }
-}
-
-@media (min-width: 1024px) {
-  .reviews-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* ===== Мобильный календарь (только для телефонов) ===== */
-@media (max-width: 768px) {
-  /* Скрываем обычный календарь */
   .calendar-wrapper-inline {
     display: none;
   }
@@ -3182,5 +3125,38 @@ section[id] {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+/* ===== Hover для мышки ===== */
+@media (hover: hover) {
+  .nav a:hover {
+    background: #ff6b35;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+  }
+}
+
+/* ===== Active для тач ===== */
+@media (hover: none) {
+  .nav a:active {
+    background: #ff6b35;
+    color: white;
+  }
+  .btn-type:active {
+    border-color: var(--primary);
+  }
+  .btn-type-daily:active {
+    border-color: #ff8c00;
+  }
+  .btn-type-hourly:active {
+    border-color: #2ec4b6;
+  }
+}
+
+@media (min-width: 1024px) {
+  .reviews-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
