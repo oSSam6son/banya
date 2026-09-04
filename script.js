@@ -216,7 +216,7 @@ function getValidYearMonth(year, month) {
   return { year, month };
 }
 
-function renderCalendarToContainer(container, year, month) {
+function renderCalendarToContainer(container, year, month, isMobile = false) {
   if (!container) return;
 
   const valid = getValidYearMonth(year, month);
@@ -227,11 +227,13 @@ function renderCalendarToContainer(container, year, month) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startingDay = firstDay.getDay();
 
+  const changeMonthFunc = isMobile ? "changeMobileMonth" : "changeMonth";
+
   let html = `
     <div class="calendar-header">
-      <button onclick="changeMonth(${year}, ${month}, -1)"><i class="fas fa-chevron-left"></i></button>
+      <button onclick="${changeMonthFunc}(${year}, ${month}, -1)"><i class="fas fa-chevron-left"></i></button>
       <h3>${MONTHS[month]} ${year}</h3>
-      <button onclick="changeMonth(${year}, ${month}, 1)"><i class="fas fa-chevron-right"></i></button>
+      <button onclick="${changeMonthFunc}(${year}, ${month}, 1)"><i class="fas fa-chevron-right"></i></button>
     </div>
     <div class="calendar-weekdays">
       <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
@@ -267,22 +269,24 @@ function renderCalendar(year, month) {
   const calendar =
     document.getElementById("calendar") ||
     document.getElementById("mobileCalendar");
-  renderCalendarToContainer(calendar, year, month);
+  renderCalendarToContainer(calendar, year, month, false);
 }
 
-function initCalendar() {
+function renderMobileCalendar() {
+  const container = document.getElementById("mobileCalendar");
+  if (!container) return;
+
   const today = new Date();
-  renderCalendar(today.getFullYear(), today.getMonth());
-}
+  let year = today.getFullYear();
+  let month = today.getMonth();
 
-function changeMonth(year, month, delta) {
-  const newDate = new Date(year, month + delta, 1);
-  if (
-    newDate.getFullYear() > MAX_YEAR ||
-    (newDate.getFullYear() === MAX_YEAR && newDate.getMonth() > 11)
-  )
-    return;
-  renderCalendar(newDate.getFullYear(), newDate.getMonth());
+  if (state.checkIn) {
+    const parts = state.checkIn.split(".");
+    year = parseInt(parts[2]);
+    month = parseInt(parts[1]) - 1;
+  }
+
+  renderCalendarToContainer(container, year, month, true);
 }
 
 function changeMobileMonth(year, month, delta) {
@@ -298,7 +302,23 @@ function changeMobileMonth(year, month, delta) {
     container,
     newDate.getFullYear(),
     newDate.getMonth(),
+    true,
   );
+}
+
+function initCalendar() {
+  const today = new Date();
+  renderCalendar(today.getFullYear(), today.getMonth());
+}
+
+function changeMonth(year, month, delta) {
+  const newDate = new Date(year, month + delta, 1);
+  if (
+    newDate.getFullYear() > MAX_YEAR ||
+    (newDate.getFullYear() === MAX_YEAR && newDate.getMonth() > 11)
+  )
+    return;
+  renderCalendar(newDate.getFullYear(), newDate.getMonth());
 }
 
 function refreshCalendars() {
@@ -387,23 +407,6 @@ function closeMobileCalendar() {
   if (!modal) return;
   modal.classList.remove("active");
   document.body.style.overflow = "auto";
-}
-
-function renderMobileCalendar() {
-  const container = document.getElementById("mobileCalendar");
-  if (!container) return;
-
-  const today = new Date();
-  let year = today.getFullYear();
-  let month = today.getMonth();
-
-  if (state.checkIn) {
-    const parts = state.checkIn.split(".");
-    year = parseInt(parts[2]);
-    month = parseInt(parts[1]) - 1;
-  }
-
-  renderCalendarToContainer(container, year, month);
 }
 
 function selectMobileDate(dateString) {
