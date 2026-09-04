@@ -15,9 +15,15 @@ const db = firebase.firestore();
 let state = { checkIn: null, checkOut: null, guests: 1, children: 0 };
 let bookingType = null;
 let blockedDates = [];
+let activeDateField = null;
+let currentCollageIndex = 0;
+let currentPhotoInCollage = 0;
+let galleryPhotos = [];
+let currentPhotoIndex = 0;
+let globalPhotoIndex = 0;
 
-// ===== Админ =====
 const ADMIN_PASSWORD = "admin123";
+const MAX_YEAR = 2026;
 
 // ===== Данные галереи =====
 const galleryData = [
@@ -50,11 +56,20 @@ const galleryData = [
   },
 ];
 
-let currentCollageIndex = 0;
-let currentPhotoInCollage = 0;
-let galleryPhotos = [];
-let currentPhotoIndex = 0;
-let globalPhotoIndex = 0;
+const MONTHS = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+];
 
 // ===== Галерея =====
 function displayCurrentPhoto() {
@@ -131,7 +146,6 @@ function openPhotoModal(index) {
 function closePhotoModal() {
   const modal = document.getElementById("photoModal");
   if (!modal) return;
-
   modal.classList.remove("active");
   document.body.style.overflow = "auto";
 }
@@ -152,48 +166,66 @@ function changePhoto(direction) {
   updateModalImage();
 }
 
-// ===== Календарь =====
-const MONTHS = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сентябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-];
-
-function initCalendar() {
-  const today = new Date();
-  renderCalendar(today.getFullYear(), today.getMonth());
+// ===== Утилиты дат =====
+function formatDate(date) {
+  return `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")}.${date.getFullYear()}`;
 }
 
-function renderCalendar(year, month) {
-  const calendar =
-    document.getElementById("calendar") ||
-    document.getElementById("mobileCalendar");
-  if (!calendar) return;
+function parseDate(dateString) {
+  const parts = dateString.split(".");
+  return new Date(parts[2], parts[1] - 1, parts[0]);
+}
+
+function isTodayDate(date) {
+  return date.toDateString() === new Date().toDateString();
+}
+
+function isSelectedDate(date) {
+  if (!state.checkIn && !state.checkOut) return false;
+  const dateString = formatDate(date);
+  return dateString === state.checkIn || dateString === state.checkOut;
+}
+
+function isInRangeDate(date) {
+  if (!state.checkIn || !state.checkOut) return false;
+  const dateTime = date.getTime();
+  return (
+    dateTime > parseDate(state.checkIn).getTime() &&
+    dateTime < parseDate(state.checkOut).getTime()
+  );
+}
+
+function checkBlockedDatesBetween(startStr, endStr) {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  let current = new Date(start);
+
+  while (current < end) {
+    if (blockedDates.includes(formatDate(current))) return true;
+    current = new Date(current.getTime() + 86400000);
+  }
+  return false;
+}
+
+// ===== Календарь =====
+function getValidYearMonth(year, month) {
+  const today = new Date();
+  if (year > MAX_YEAR) return { year: MAX_YEAR, month: 11 };
+  if (year < today.getFullYear())
+    return { year: today.getFullYear(), month: today.getMonth() };
+  return { year, month };
+}
+
+function renderCalendarToContainer(container, year, month) {
+  if (!container) return;
+
+  const valid = getValidYearMonth(year, month);
+  year = valid.year;
+  month = valid.month;
 
   const firstDay = new Date(year, month, 0);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startingDay = firstDay.getDay();
-
-  const today = new Date();
-  const maxYear = 2026;
-
-  if (year > maxYear) {
-    year = maxYear;
-    month = 11;
-  }
-  if (year < today.getFullYear()) {
-    year = today.getFullYear();
-    month = today.getMonth();
-  }
 
   let html = `
     <div class="calendar-header">
@@ -219,82 +251,66 @@ function renderCalendar(year, month) {
     let className = "calendar-day";
 
     if (isTodayDate(date)) className += " today";
-
-    if (date < now) {
-      className += " past";
-    } else if (blockedDates.includes(dateString)) {
-      className += " blocked";
-    }
-
+    if (date < now) className += " past";
+    else if (blockedDates.includes(dateString)) className += " blocked";
     if (isSelectedDate(date)) className += " selected";
     if (isInRangeDate(date)) className += " in-range";
 
-    if (date < now || blockedDates.includes(dateString)) {
-      html += `<div class="${className}">${day}</div>`;
-      continue;
-    }
-
-    html += `<div class="${className}" onclick="selectDate('${dateString}')">${day}</div>`;
+    const isDisabled = date < now || blockedDates.includes(dateString);
+    html += `<div class="${className}"${isDisabled ? "" : ` onclick="selectDate('${dateString}')"`}>${day}</div>`;
   }
 
-  calendar.innerHTML = html + "</div>";
+  container.innerHTML = html + "</div>";
+}
+
+function renderCalendar(year, month) {
+  const calendar =
+    document.getElementById("calendar") ||
+    document.getElementById("mobileCalendar");
+  renderCalendarToContainer(calendar, year, month);
+}
+
+function initCalendar() {
+  const today = new Date();
+  renderCalendar(today.getFullYear(), today.getMonth());
 }
 
 function changeMonth(year, month, delta) {
-  const maxYear = 2026;
-  const maxMonth = 11;
   const newDate = new Date(year, month + delta, 1);
-
   if (
-    newDate.getFullYear() > maxYear ||
-    (newDate.getFullYear() === maxYear && newDate.getMonth() > maxMonth)
-  ) {
+    newDate.getFullYear() > MAX_YEAR ||
+    (newDate.getFullYear() === MAX_YEAR && newDate.getMonth() > 11)
+  )
     return;
-  }
-
   renderCalendar(newDate.getFullYear(), newDate.getMonth());
 }
 
-function formatDate(date) {
-  return `${String(date.getDate()).padStart(2, "0")}.${String(date.getMonth() + 1).padStart(2, "0")}.${date.getFullYear()}`;
-}
+function changeMobileMonth(year, month, delta) {
+  const newDate = new Date(year, month + delta, 1);
+  if (
+    newDate.getFullYear() > MAX_YEAR ||
+    (newDate.getFullYear() === MAX_YEAR && newDate.getMonth() > 11)
+  )
+    return;
 
-function parseDate(dateString) {
-  const parts = dateString.split(".");
-  return new Date(parts[2], parts[1] - 1, parts[0]);
-}
-
-function isSelectedDate(date) {
-  if (!state.checkIn && !state.checkOut) return false;
-  const dateString = formatDate(date);
-  return dateString === state.checkIn || dateString === state.checkOut;
-}
-
-function isInRangeDate(date) {
-  if (!state.checkIn || !state.checkOut) return false;
-  const dateTime = date.getTime();
-  return (
-    dateTime > parseDate(state.checkIn).getTime() &&
-    dateTime < parseDate(state.checkOut).getTime()
+  const container = document.getElementById("mobileCalendar");
+  renderCalendarToContainer(
+    container,
+    newDate.getFullYear(),
+    newDate.getMonth(),
   );
 }
 
-function isTodayDate(date) {
-  return date.toDateString() === new Date().toDateString();
-}
-
-function checkBlockedDatesBetween(startStr, endStr) {
-  const start = parseDate(startStr);
-  const end = parseDate(endStr);
-  let current = new Date(start);
-
-  while (current < end) {
-    if (blockedDates.includes(formatDate(current))) {
-      return true;
-    }
-    current = new Date(current.getTime() + 86400000);
+function refreshCalendars() {
+  if (state.checkIn) {
+    const parts = state.checkIn.split(".");
+    renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+    renderMobileCalendar();
+  } else {
+    const today = new Date();
+    renderCalendar(today.getFullYear(), today.getMonth());
+    renderMobileCalendar();
   }
-  return false;
 }
 
 function selectDate(dateString) {
@@ -302,8 +318,7 @@ function selectDate(dateString) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  if (date < now) return;
-  if (blockedDates.includes(dateString)) return;
+  if (date < now || blockedDates.includes(dateString)) return;
 
   const checkIn = document.getElementById("checkIn");
   const checkOut = document.getElementById("checkOut");
@@ -312,8 +327,7 @@ function selectDate(dateString) {
     if (state.checkIn === dateString) {
       state.checkIn = null;
       checkIn.value = "";
-      const parts = dateString.split(".");
-      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars();
       return;
     }
     state.checkIn = dateString;
@@ -326,8 +340,7 @@ function selectDate(dateString) {
       state.checkOut = null;
       checkIn.value = "";
       checkOut.value = "";
-      const parts = dateString.split(".");
-      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars();
       return;
     }
     state.checkIn = dateString;
@@ -339,8 +352,7 @@ function selectDate(dateString) {
     if (dateString === state.checkIn) {
       state.checkIn = null;
       checkIn.value = "";
-      const parts = dateString.split(".");
-      refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
+      refreshCalendars();
       return;
     }
     if (date <= checkInDate) {
@@ -356,24 +368,82 @@ function selectDate(dateString) {
     }
   }
 
-  if (state.checkIn) {
-    const parts = state.checkIn.split(".");
-    refreshCalendars(parseInt(parts[2]), parseInt(parts[1]) - 1);
-  }
+  refreshCalendars();
 }
 
-function refreshCalendars() {
+// ===== Мобильный календарь =====
+function openMobileCalendar(fieldId) {
+  activeDateField = fieldId;
+  const modal = document.getElementById("mobileCalendarModal");
+  if (!modal) return;
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+  renderMobileCalendar();
+}
+
+function closeMobileCalendar() {
+  const modal = document.getElementById("mobileCalendarModal");
+  if (!modal) return;
+  modal.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function renderMobileCalendar() {
+  const container = document.getElementById("mobileCalendar");
+  if (!container) return;
+
+  const today = new Date();
+  let year = today.getFullYear();
+  let month = today.getMonth();
+
   if (state.checkIn) {
     const parts = state.checkIn.split(".");
-    const year = parseInt(parts[2]);
-    const month = parseInt(parts[1]) - 1;
-    renderCalendar(year, month);
-    renderMobileCalendar();
-  } else {
-    const today = new Date();
-    renderCalendar(today.getFullYear(), today.getMonth());
-    renderMobileCalendar();
+    year = parseInt(parts[2]);
+    month = parseInt(parts[1]) - 1;
   }
+
+  renderCalendarToContainer(container, year, month);
+}
+
+function selectMobileDate(dateString) {
+  const date = parseDate(dateString);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  if (date < now || blockedDates.includes(dateString)) return;
+
+  const checkIn = document.getElementById("checkIn");
+  const checkOut = document.getElementById("checkOut");
+
+  if (activeDateField === "checkOut") {
+    if (!state.checkIn) {
+      alert("Сначала выберите дату заезда");
+      closeMobileCalendar();
+      return;
+    }
+    if (dateString <= state.checkIn) {
+      alert("Дата выезда должна быть позже даты заезда");
+      return;
+    }
+    if (checkBlockedDatesBetween(state.checkIn, dateString)) {
+      alert("В выбранном диапазоне есть заблокированная дата");
+      return;
+    }
+    state.checkOut = dateString;
+    checkOut.value = dateString;
+  } else {
+    state.checkIn = dateString;
+    state.checkOut = null;
+    checkIn.value = dateString;
+    checkOut.value = "";
+  }
+
+  if (state.checkIn) {
+    const parts = state.checkIn.split(".");
+    renderCalendar(parseInt(parts[2]), parseInt(parts[1]) - 1);
+  }
+  closeMobileCalendar();
 }
 
 // ===== Бронирование =====
@@ -466,16 +536,10 @@ function calculatePrice(shouldScroll = true) {
     if (days <= 0) return alert("Дата выезда должна быть позже даты заезда");
 
     let dailyPrice = 17500;
-    if (guests >= 3) {
-      dailyPrice += (guests - 2) * 1600;
-    }
+    if (guests >= 3) dailyPrice += (guests - 2) * 1600;
 
     totalPrice = dailyPrice * days;
-
-    // Бонус -3000₽ при заказе от 3 дней
-    if (days >= 3) {
-      totalPrice -= 3000;
-    }
+    if (days >= 3) totalPrice -= 3000;
 
     periodText = `${state.checkIn} — ${state.checkOut} (${days} нч.)`;
     basePriceText = `${dailyPrice}₽/сутки`;
@@ -483,13 +547,7 @@ function calculatePrice(shouldScroll = true) {
     if (!state.checkIn) return alert("Пожалуйста, выберите дату");
 
     const hours = parseInt(document.getElementById("hoursCount").value);
-
-    let hourlyPrice;
-    if (guests <= 6) {
-      hourlyPrice = 3500;
-    } else {
-      hourlyPrice = 4000;
-    }
+    const hourlyPrice = guests <= 6 ? 3500 : 4000;
 
     totalPrice = hourlyPrice * hours;
     periodText = `${state.checkIn} (${hours} ч.)`;
@@ -561,59 +619,14 @@ function calculatePrice(shouldScroll = true) {
   }
 }
 
-// ===== Мобильный календарь =====
-function openMobileCalendar() {
-  const modal = document.getElementById("mobileCalendarModal");
-  if (!modal) return;
-
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
-
-  // Рендерим календарь в мобильную модалку
-  renderMobileCalendar();
+function autoUpdatePrice() {
+  const wrapper = document.getElementById("bookingCalendarWrapper");
+  if (!wrapper || wrapper.style.display === "none") return;
+  if (!state.checkIn) return;
+  calculatePrice(false);
 }
 
-function closeMobileCalendar() {
-  const modal = document.getElementById("mobileCalendarModal");
-  if (!modal) return;
-
-  modal.classList.remove("active");
-  document.body.style.overflow = "auto";
-}
-
-function renderMobileCalendar() {
-  const container = document.getElementById("mobileCalendar");
-  if (!container) return;
-
-  const today = new Date();
-
-  // Используем текущую логику рендера, но для мобильного контейнера
-  const year = today.getFullYear();
-  const month = today.getMonth();
-
-  // Если есть выбранная дата заезда — показываем её месяц
-  let renderYear = year;
-  let renderMonth = month;
-
-  if (state.checkIn) {
-    const parts = state.checkIn.split(".");
-    renderYear = parseInt(parts[2]);
-    renderMonth = parseInt(parts[1]) - 1;
-  }
-
-  // Копируем рендер в мобильный контейнер
-  const originalCalendar = document.getElementById("calendar");
-  const mobileCalendar = document.getElementById("mobileCalendar");
-
-  if (mobileCalendar) {
-    // Временно меняем ID для рендера
-    mobileCalendar.id = "calendar";
-    renderCalendar(renderYear, renderMonth);
-    mobileCalendar.id = "mobileCalendar";
-  }
-}
-
-// ===== Плавный скролл =====
+// ===== Навигация и скролл =====
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
@@ -634,7 +647,6 @@ function scrollToBooking() {
   window.scrollTo({ top: offset, behavior: "smooth" });
 }
 
-// ===== Шапка =====
 function initHeaderScroll() {
   const header = document.querySelector(".header");
   window.addEventListener(
@@ -648,19 +660,16 @@ function initHeaderScroll() {
   );
 }
 
-// ===== Счётчик услуг =====
+// ===== Услуги =====
 function changeServiceCount(btn, delta) {
   const card = btn.closest(".service-card");
   const valueEl = card.querySelector(".counter-value");
   let count = Math.max(0, Math.min(5, parseInt(valueEl.textContent) + delta));
   valueEl.textContent = count;
   card.style.border = count > 0 ? "2px solid var(--primary)" : "none";
-
-  // Автоматически пересчитываем цену
   autoUpdatePrice();
 }
 
-// ===== Назад =====
 function goBackToTypeSelector() {
   const selector = document.getElementById("bookingTypeSelector");
   const wrapper = document.getElementById("bookingCalendarWrapper");
@@ -723,24 +732,13 @@ function initYandexMap() {
   });
 }
 
-// ===== Автоподстановка даты (исправленная) =====
+// ===== Ввод даты =====
 function autoFormatDate(input) {
-  // Сохраняем всё что пользователь ввёл (цифры и точки)
-  let value = input.value;
-
-  // Убираем только недопустимые символы (буквы, пробелы, слэши и т.д.)
-  value = value.replace(/[^\d.]/g, "");
-
-  // Убираем дублирующиеся точки
+  let value = input.value.replace(/[^\d.]/g, "");
   value = value.replace(/\.+/g, ".");
-
-  // Убираем точку в начале
   if (value.startsWith(".")) value = value.slice(1);
-
-  // Ограничиваем длину 10 символов (ДД.ММ.ГГГГ)
   if (value.length > 10) value = value.slice(0, 10);
 
-  // Если пользователь вводит только цифры — автоматически ставим точки
   const digitsOnly = value.replace(/\./g, "");
   if (digitsOnly.length > 2 && !value.includes(".")) {
     value = digitsOnly.slice(0, 2) + "." + digitsOnly.slice(2);
@@ -757,19 +755,6 @@ function autoFormatDate(input) {
   input.value = value;
 }
 
-function autoUpdatePrice() {
-  // Проверяем, что форма уже показана
-  const wrapper = document.getElementById("bookingCalendarWrapper");
-  if (!wrapper || wrapper.style.display === "none") return;
-
-  // Проверяем, что есть даты
-  if (!state.checkIn) return;
-
-  // Вызываем расчёт
-  calculatePrice(false);
-}
-
-// ===== Ручной ввод даты (исправленный) =====
 function validateDateInput(input) {
   const value = input.value.trim();
   if (!value) return;
@@ -785,67 +770,53 @@ function validateDateInput(input) {
   const month = parseInt(match[2]);
   const year = parseInt(match[3]);
 
-  if (year > 2026) {
-    alert("Бронирование доступно только до конца 2026 года");
-    input.value = "";
-    return;
-  }
-
-  if (month < 1 || month > 12) {
-    alert("Неверный месяц");
-    input.value = "";
-    return;
-  }
+  if (year > MAX_YEAR)
+    return (
+      alert("Бронирование доступно только до конца 2026 года"),
+      (input.value = "")
+    );
+  if (month < 1 || month > 12)
+    return (alert("Неверный месяц"), (input.value = ""));
 
   const daysInMonth = new Date(year, month, 0).getDate();
-  if (day < 1 || day > daysInMonth) {
-    alert("Неверный день");
-    input.value = "";
-    return;
-  }
+  if (day < 1 || day > daysInMonth)
+    return (alert("Неверный день"), (input.value = ""));
 
   const date = new Date(year, month - 1, day);
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  if (date < now) {
-    alert("Нельзя выбрать прошедшую дату");
-    input.value = "";
-    return;
-  }
-
-  if (date > new Date(2026, 11, 31)) {
-    alert("Бронирование доступно только до конца 2026 года");
-    input.value = "";
-    return;
-  }
+  if (date < now)
+    return (alert("Нельзя выбрать прошедшую дату"), (input.value = ""));
+  if (date > new Date(MAX_YEAR, 11, 31))
+    return (
+      alert("Бронирование доступно только до конца 2026 года"),
+      (input.value = "")
+    );
 
   const dateString = formatDate(date);
 
-  if (blockedDates.includes(dateString)) {
-    alert("Эта дата заблокирована");
-    input.value = "";
-    return;
-  }
+  if (blockedDates.includes(dateString))
+    return (alert("Эта дата заблокирована"), (input.value = ""));
 
   if (input.id === "checkIn") {
     state.checkIn = dateString;
   } else if (input.id === "checkOut") {
-    if (bookingType === "hourly") {
-      alert("При почасовой аренде дата выезда не нужна");
-      input.value = "";
-      return;
-    }
-    if (state.checkIn && dateString <= state.checkIn) {
-      alert("Дата выезда должна быть позже даты заезда");
-      input.value = "";
-      return;
-    }
-    if (state.checkIn && checkBlockedDatesBetween(state.checkIn, dateString)) {
-      alert("В выбранном диапазоне есть заблокированная дата");
-      input.value = "";
-      return;
-    }
+    if (bookingType === "hourly")
+      return (
+        alert("При почасовой аренде дата выезда не нужна"),
+        (input.value = "")
+      );
+    if (state.checkIn && dateString <= state.checkIn)
+      return (
+        alert("Дата выезда должна быть позже даты заезда"),
+        (input.value = "")
+      );
+    if (state.checkIn && checkBlockedDatesBetween(state.checkIn, dateString))
+      return (
+        alert("В выбранном диапазоне есть заблокированная дата"),
+        (input.value = "")
+      );
     state.checkOut = dateString;
   }
 
@@ -859,15 +830,8 @@ function submitOrder() {
   const phone = document.getElementById("paymentPhone").value.trim();
   const btn = document.getElementById("submitOrderBtn");
 
-  if (!name) {
-    alert("Введите ваше имя");
-    return;
-  }
-
-  if (!phone) {
-    alert("Введите ваш телефон");
-    return;
-  }
+  if (!name) return alert("Введите ваше имя");
+  if (!phone) return alert("Введите ваш телефон");
 
   btn.classList.add("loading");
   btn.disabled = true;
@@ -877,8 +841,8 @@ function submitOrder() {
     "Не указана";
 
   const formData = {
-    name: name,
-    phone: phone,
+    name,
+    phone,
     price: totalPrice,
     dates: `${state.checkIn}${state.checkOut ? " — " + state.checkOut : ""}`,
     guests: `${state.guests} взрослых + ${state.children} детей`,
@@ -895,16 +859,10 @@ function submitOrder() {
     body: JSON.stringify(formData),
   })
     .then((response) => {
-      if (response.ok) {
-        showPaymentSuccess();
-      } else {
-        alert("Ошибка отправки. Попробуйте ещё раз.");
-      }
+      if (response.ok) showPaymentSuccess();
+      else alert("Ошибка отправки. Попробуйте ещё раз.");
     })
-    .catch((error) => {
-      console.error("Ошибка:", error);
-      alert("Ошибка отправки. Попробуйте ещё раз.");
-    })
+    .catch(() => alert("Ошибка отправки. Попробуйте ещё раз."))
     .finally(() => {
       btn.classList.remove("loading");
       btn.disabled = false;
@@ -923,7 +881,7 @@ function showPaymentSuccess() {
   `;
 }
 
-// ===== Модалка оплаты =====
+// ===== Модалки =====
 function openPaymentModal(totalPrice) {
   const modal = document.getElementById("paymentModal");
   const summary = document.getElementById("paymentOrderSummary");
@@ -938,13 +896,11 @@ function openPaymentModal(totalPrice) {
 function closePaymentModal() {
   const modal = document.getElementById("paymentModal");
   if (!modal) return;
-
   modal.classList.remove("active");
   document.body.classList.remove("modal-open");
   document.body.style.overflow = "auto";
 }
 
-// ===== Видео модалка =====
 function openVideoModal() {
   const modal = document.getElementById("videoModal");
   const video = document.getElementById("videoPlayer");
@@ -953,11 +909,9 @@ function openVideoModal() {
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
 
-  // Запускаем видео со звуком
   if (video) {
     video.muted = false;
     video.play().catch(() => {
-      // Если не получилось со звуком — пробуем без звука
       video.muted = true;
       video.play();
     });
@@ -977,7 +931,6 @@ function closeVideoModal() {
   }
 }
 
-// ===== FAQ =====
 function toggleFaq(btn) {
   const item = btn.closest(".faq-item");
   document.querySelectorAll(".faq-item.active").forEach((el) => {
@@ -991,11 +944,8 @@ function openAdminModal() {
   const modal = document.getElementById("adminModal");
   if (!modal) return;
 
-  const loginScreen = document.getElementById("adminLogin");
-  const panelScreen = document.getElementById("adminPanel");
-
-  loginScreen.style.display = "flex";
-  panelScreen.style.display = "none";
+  document.getElementById("adminLogin").style.display = "flex";
+  document.getElementById("adminPanel").style.display = "none";
   document.getElementById("adminPassword").value = "";
 
   modal.classList.add("active");
@@ -1011,7 +961,6 @@ function closeAdminModal() {
 
 function checkAdminPassword() {
   const password = document.getElementById("adminPassword").value;
-
   if (password === ADMIN_PASSWORD) {
     document.getElementById("adminLogin").style.display = "none";
     document.getElementById("adminPanel").style.display = "block";
@@ -1026,29 +975,15 @@ function loadBlockedDates() {
     .get()
     .then((snapshot) => {
       blockedDates = [];
-      snapshot.forEach((doc) => {
-        blockedDates.push(doc.data().date);
-      });
-
-      // Сортировка как даты
-      blockedDates.sort((a, b) => {
-        const parse = (s) => {
-          const parts = s.split(".");
-          return new Date(parts[2], parts[1] - 1, parts[0]);
-        };
-        return parse(a) - parse(b);
-      });
-
+      snapshot.forEach((doc) => blockedDates.push(doc.data().date));
+      blockedDates.sort((a, b) => parseDate(a) - parseDate(b));
       renderBlockedDates();
       const today = new Date();
       renderCalendar(today.getFullYear(), today.getMonth());
     })
-    .catch((err) => {
-      console.error("Ошибка загрузки дат:", err);
-    });
+    .catch((err) => console.error("Ошибка загрузки дат:", err));
 }
 
-// Проверка валидности даты для админки
 function isValidAdminDate(dateString) {
   const match = dateString.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
   if (!match) return false;
@@ -1057,7 +992,7 @@ function isValidAdminDate(dateString) {
   const month = parseInt(match[2]);
   const year = parseInt(match[3]);
 
-  if (year > 2026 || year < new Date().getFullYear()) return false;
+  if (year > MAX_YEAR || year < new Date().getFullYear()) return false;
   if (month < 1 || month > 12) return false;
 
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -1068,7 +1003,7 @@ function isValidAdminDate(dateString) {
   now.setHours(0, 0, 0, 0);
 
   if (date < now) return false;
-  if (date > new Date(2026, 11, 31)) return false;
+  if (date > new Date(MAX_YEAR, 11, 31)) return false;
 
   return true;
 }
@@ -1077,27 +1012,16 @@ function addBlockedDate() {
   const input = document.getElementById("adminDateInput");
   const date = input.value.trim();
 
-  if (!date) {
-    alert("Введите дату");
-    return;
-  }
-
-  if (!isValidAdminDate(date)) {
-    alert("Неверная дата. Используйте формат ДД.ММ.ГГГГ");
-    input.value = "";
-    return;
-  }
-
-  if (blockedDates.includes(date)) {
-    alert("Эта дата уже заблокирована");
-    return;
-  }
+  if (!date) return alert("Введите дату");
+  if (!isValidAdminDate(date))
+    return (
+      alert("Неверная дата. Используйте формат ДД.ММ.ГГГГ"),
+      (input.value = "")
+    );
+  if (blockedDates.includes(date)) return alert("Эта дата уже заблокирована");
 
   db.collection("blockedDates")
-    .add({
-      date: date,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    })
+    .add({ date, createdAt: firebase.firestore.FieldValue.serverTimestamp() })
     .then(() => {
       input.value = "";
       loadBlockedDates();
@@ -1112,44 +1036,31 @@ function blockDateRange() {
   const start = document.getElementById("adminDateStart").value.trim();
   const end = document.getElementById("adminDateEnd").value.trim();
 
-  if (!start || !end) {
-    alert("Введите обе даты");
-    return;
-  }
-
-  if (!isValidAdminDate(start) || !isValidAdminDate(end)) {
-    alert("Неверные даты. Используйте формат ДД.ММ.ГГГГ");
-    return;
-  }
+  if (!start || !end) return alert("Введите обе даты");
+  if (!isValidAdminDate(start) || !isValidAdminDate(end))
+    return alert("Неверные даты. Используйте формат ДД.ММ.ГГГГ");
 
   const startDate = parseDate(start);
   const endDate = parseDate(end);
 
-  if (startDate > endDate) {
-    alert("Дата начала должна быть раньше даты окончания");
-    return;
-  }
+  if (startDate > endDate)
+    return alert("Дата начала должна быть раньше даты окончания");
 
   const datesToBlock = [];
   let current = new Date(startDate);
-
   while (current <= endDate) {
     datesToBlock.push(formatDate(current));
     current = new Date(current.getTime() + 86400000);
   }
 
   const newDates = datesToBlock.filter((d) => !blockedDates.includes(d));
-
-  if (newDates.length === 0) {
-    alert("Все эти даты уже заблокированы");
-    return;
-  }
+  if (newDates.length === 0) return alert("Все эти даты уже заблокированы");
 
   const batch = db.batch();
   newDates.forEach((date) => {
     const docRef = db.collection("blockedDates").doc();
     batch.set(docRef, {
-      date: date,
+      date,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   });
@@ -1173,35 +1084,21 @@ function removeBlockedDate(dateString) {
     .where("date", "==", dateString)
     .get()
     .then((snapshot) => {
-      snapshot.forEach((doc) => {
-        doc.ref.delete();
-      });
+      snapshot.forEach((doc) => doc.ref.delete());
     })
-    .then(() => {
-      loadBlockedDates();
-    })
-    .catch((err) => {
-      console.error("Ошибка удаления:", err);
-    });
+    .then(() => loadBlockedDates())
+    .catch((err) => console.error("Ошибка удаления:", err));
 }
 
 function deleteAllBlockedDates() {
-  if (blockedDates.length === 0) {
-    alert("Нет заблокированных дат");
-    return;
-  }
-
-  if (!confirm("Удалить все заблокированные даты?")) {
-    return;
-  }
+  if (blockedDates.length === 0) return alert("Нет заблокированных дат");
+  if (!confirm("Удалить все заблокированные даты?")) return;
 
   db.collection("blockedDates")
     .get()
     .then((snapshot) => {
       const batch = db.batch();
-      snapshot.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
+      snapshot.forEach((doc) => batch.delete(doc.ref));
       return batch.commit();
     })
     .then(() => {
@@ -1237,8 +1134,8 @@ function renderBlockedDates() {
     .join("");
 }
 
-// ===== Tooltip для мобильных =====
-document.addEventListener("click", function (e) {
+// ===== Обработчики =====
+document.addEventListener("click", (e) => {
   const link = e.target.closest(".what-you-get-link");
   if (link) {
     link.classList.toggle("active");
@@ -1248,10 +1145,7 @@ document.addEventListener("click", function (e) {
       .querySelectorAll(".what-you-get-link.active")
       .forEach((el) => el.classList.remove("active"));
   }
-});
 
-// ===== Закрытие по фону и Escape =====
-document.addEventListener("click", function (e) {
   ["photoModal", "paymentModal", "videoModal", "adminModal"].forEach((id) => {
     const modal = document.getElementById(id);
     if (modal && e.target === modal) {
@@ -1263,12 +1157,13 @@ document.addEventListener("click", function (e) {
   });
 });
 
-document.addEventListener("keydown", function (e) {
+document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closePhotoModal();
     closePaymentModal();
     closeVideoModal();
     closeAdminModal();
+    closeMobileCalendar();
   }
 
   const modal = document.getElementById("photoModal");
@@ -1292,59 +1187,43 @@ document.addEventListener("DOMContentLoaded", () => {
   initYandexMap();
   loadBlockedDates();
 
-  // Показываем кнопку календаря только на мобильных
-  if (window.innerWidth <= 768) {
-    document.getElementById("mobileCalendarTrigger").style.display = "flex";
-  } else {
-    document.getElementById("mobileCalendarTrigger").style.display = "none";
-  }
-
-  // Закрытие мобильного календаря по фону
   document
     .getElementById("mobileCalendarModal")
     ?.addEventListener("click", function (e) {
       if (e.target === this) closeMobileCalendar();
     });
 
+  document.getElementById("guestsCount")?.addEventListener("change", (e) => {
+    state.guests = parseInt(e.target.value);
+    autoUpdatePrice();
+  });
+
+  document.getElementById("childrenCount")?.addEventListener("change", (e) => {
+    state.children = parseInt(e.target.value);
+    autoUpdatePrice();
+  });
+
   document
-    .getElementById("guestsCount")
-    ?.addEventListener(
-      "change",
-      (e) => (state.guests = parseInt(e.target.value)),
-    );
+    .getElementById("hoursCount")
+    ?.addEventListener("change", autoUpdatePrice);
+
   document
-    .getElementById("childrenCount")
-    ?.addEventListener(
-      "change",
-      (e) => (state.children = parseInt(e.target.value)),
-    );
+    .querySelectorAll(".extra-service")
+    .forEach((cb) => cb.addEventListener("change", autoUpdatePrice));
+  document
+    .querySelectorAll(".service-checkbox")
+    .forEach((cb) => cb.addEventListener("change", autoUpdatePrice));
 
   document.getElementById("logo")?.addEventListener("click", (e) => {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
-  document.querySelectorAll(".extra-service").forEach((cb) => {
-    cb.addEventListener("change", autoUpdatePrice);
-  });
+  console.log("Сайт инициализирован");
+});
 
-  document.querySelectorAll(".service-checkbox").forEach((cb) => {
-    cb.addEventListener("change", autoUpdatePrice);
-  });
-
-  // Автопересчёт при изменении количества гостей
-  document.getElementById("guestsCount")?.addEventListener("change", () => {
-    state.guests = parseInt(document.getElementById("guestsCount").value);
-    autoUpdatePrice();
-  });
-
-  document.getElementById("childrenCount")?.addEventListener("change", () => {
-    state.children = parseInt(document.getElementById("childrenCount").value);
-    autoUpdatePrice();
-  });
-
-  // Автопересчёт при изменении часов
-  document
-    .getElementById("hoursCount")
-    ?.addEventListener("change", autoUpdatePrice);
+window.addEventListener("load", function () {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 100);
 });
