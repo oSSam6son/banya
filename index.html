@@ -71,7 +71,7 @@
             ><i class="fas fa-map-marker-alt"></i> Московская обл.,
             Подольск</span
           >
-          <span><i class="fas fa-users"></i> До 10 гостей</span>
+          <span><i class="fas fa-users"></i> До 8 гостей</span>
         </div>
 
         <!-- Навигация по коллажам -->
@@ -174,11 +174,6 @@
           </button>
         </div>
 
-        <a href="agreement.pdf" target="_blank" class="agreement-link">
-          <i class="fas fa-file-pdf"></i>
-          Пользовательское соглашение
-        </a>
-
         <!-- Контейнер для формы и календаря -->
         <div
           class="booking-calendar-wrapper"
@@ -203,6 +198,15 @@
                 ></span>
               </span>
             </div>
+            <p
+              style="
+                margin-top: -10px;
+                margin-bottom: 10px;
+                color: var(--text-light);
+              "
+            >
+              Скидка 3000₽ при бронирования от 3 ночей
+            </p>
             <div class="booking-form">
               <div class="field">
                 <label>Заезд</label>
@@ -255,13 +259,11 @@
                   <option value="6">6 гостей</option>
                   <option value="7">7 гостей</option>
                   <option value="8">8 гостей</option>
-                  <option value="9">9 гостей</option>
-                  <option value="10">10 гостей</option>
                 </select>
               </div>
 
               <div class="field">
-                <label>Дети (до 18 лет) бесплатно</label>
+                <label>Дети (до 5 лет) бесплатно</label>
                 <select id="childrenCount">
                   <option value="0">Без детей</option>
                   <option value="1">1 ребенок</option>
@@ -277,33 +279,16 @@
                     type="checkbox"
                     id="addPool"
                     class="extra-service"
-                    value="3500"
-                    data-name="Добавить бассейн"
-                  />
-                  <i class="fas fa-swimming-pool"></i>
-                  Добавить бассейн
-                  <span class="tooltip-icon" tabindex="0">
-                    <i class="fas fa-question-circle"></i>
-                    <span class="tooltip-text"
-                      >Дополнительная услуга<br />3500р</span
-                    >
-                  </span>
-                </label>
-
-                <label class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    id="heatBanya"
-                    class="extra-service"
                     value="700"
-                    data-name="Добавить баню"
+                    data-name="Уборка парилки"
                   />
-                  <i class="fas fa-fire"></i>
-                  Растопить баню
+                  <i class="fas fa-broom"></i>
+                  Уборка парилки
                   <span class="tooltip-icon" tabindex="0">
                     <i class="fas fa-question-circle"></i>
                     <span class="tooltip-text"
-                      >Дополнительная услуга<br />3500р</span
+                      >Добавте эту услугу, если у Вас будут свои веники, цена
+                      услуги 700р</span
                     >
                   </span>
                 </label>
@@ -328,6 +313,11 @@
             <div class="calendar" id="calendar"></div>
             <div class="calendar-legend">
               <span><span class="legend-dot"></span> - недоступно</span>
+              <span><span class="legend-dot today"></span> - дата сегодня</span>
+              <span
+                ><span class="legend-dot check"></span> - дата заезда и
+                выезда</span
+              >
             </div>
           </div>
         </div>
@@ -340,11 +330,11 @@
         <h2>Дополнительные услуги</h2>
         <div class="services-grid">
           <!-- Банный комплект со счётчиком -->
-          <div class="service-card" data-price="450">
+          <div class="service-card" data-price="550">
             <i class="fa-solid fa-bath"></i>
             <h3>Банный комплект</h3>
             <p>Полотенце, простынь, тапочки</p>
-            <span class="price">450 ₽ / шт.</span>
+            <span class="price">550 ₽ / шт.</span>
             <div class="counter">
               <button
                 class="counter-btn minus"
@@ -363,11 +353,11 @@
           </div>
 
           <!-- Шапочка со счётчиком -->
-          <div class="service-card" data-price="200">
+          <div class="service-card" data-price="250">
             <i class="fas fa-hat-wizard"></i>
             <h3>Шапочка банная</h3>
             <p>Защита головы от жара в бане</p>
-            <span class="price">200 ₽ / шт.</span>
+            <span class="price">250 ₽ / шт.</span>
             <div class="counter">
               <button
                 class="counter-btn minus"
@@ -386,38 +376,14 @@
           </div>
 
           <!-- Веник со счётчиком -->
-          <div class="service-card" data-price="700">
+          <div class="service-card" data-price="1400">
+            <input type="checkbox" class="service-checkbox" value="1400" />
             <i class="fas fa-leaf"></i>
-            <h3>Веник берёзовый</h3>
+            <h3>Веник дубовый</h3>
             <p>С оплатой мытья парилки</p>
-            <span class="price">700 ₽ / шт.</span>
-            <div class="counter">
-              <button
-                class="counter-btn minus"
-                onclick="changeServiceCount(this, -1)"
-              >
-                −
-              </button>
-              <span class="counter-value">0</span>
-              <button
-                class="counter-btn plus"
-                onclick="changeServiceCount(this, 1)"
-              >
-                +
-              </button>
-            </div>
+            <span class="price">1400 ₽ / шт.</span>
           </div>
 
-          <!-- Джакузи (без счётчика) -->
-          <div class="service-card" data-price="1500">
-            <input type="checkbox" class="service-checkbox" value="1500" />
-            <i class="fas fa-hot-tub"></i>
-            <h3>Джакузи</h3>
-            <p>С гидромассажем</p>
-            <span class="price">1 500 ₽</span>
-          </div>
-
-          <!-- Уличный бассейн (без счётчика) -->
           <div class="service-card" data-price="3500">
             <input type="checkbox" class="service-checkbox" value="3500" />
             <i class="fas fa-swimming-pool"></i>
@@ -482,7 +448,7 @@
           </div>
           <div class="about-item">
             <i class="fas fa-car"></i>
-            <span>Парковочное место:</span> <strong>1 без навеса</strong>
+            <span>Парковочное место:</span> <strong>3 без навеса</strong>
           </div>
           <div class="about-item about-item-stack">
             <i class="fas fa-road"></i>
@@ -494,7 +460,7 @@
           </div>
           <div class="about-item">
             <i class="fas fa-money-bill"></i>
-            <span>Залог:</span> <strong>5 000 ₽</strong>
+            <span>Залог:</span> <strong>5 000 ₽ + документ</strong>
           </div>
           <div class="about-item">
             <i class="fas fa-map"></i>
@@ -511,13 +477,14 @@
             <span>Выезд:</span> <strong>до 12:00</strong>
           </div>
           <div class="rule-item">
-            <span>Количество гостей:</span> <strong>10</strong>
+            <span>Количество гостей:</span> <strong>8</strong>
           </div>
           <div class="rule-item">
             <span>Можно с детьми:</span> <strong>да</strong>
           </div>
           <div class="rule-item">
-            <span>Можно с питомцем:</span> <strong>нет</strong>
+            <span>Можно с питомцем:</span>
+            <strong>да <br />(с доплатой)</strong>
           </div>
           <div class="rule-item">
             <span>Можно курить:</span> <strong>нет</strong>
@@ -562,8 +529,7 @@
             дополнительным услугам.
           </p>
           <p>
-            ✨ <strong>Время заезда:</strong> с 14:00 до 15:00 (в зависимости от
-            готовности)<br />
+            ✨ <strong>Время заезда:</strong> с 15:00<br />
             ⏰ <strong>Выезд:</strong> до 12:00 следующего дня
           </p>
           <p>
@@ -586,16 +552,12 @@
             подогревается. Время работы с 10:00 до 21:00.
           </p>
           <p>
-            💰 <strong>Скидки:</strong> в зависимости от количества людей и
-            времени аренды.
-          </p>
-          <p>
             📋 <strong>При заезде:</strong> страховой депозит 5 000 ₽ + документ
             (паспорт или права) в сейфе, или 10 000 ₽ + фото документа.
           </p>
           <p>
             🛍 <strong>Банные комплекты:</strong> полотенце, простынь, тапочки —
-            450 ₽.
+            550 ₽.
           </p>
           <p>
             ⏱ <strong>Почасовая аренда:</strong> минимум 3 часа в будни, 5 часов
@@ -626,90 +588,89 @@
         <div class="reviews-grid">
           <div class="review-card">
             <div class="review-header">
-              <img
-                src="https://via.placeholder.com/50x50/FF6B6B/FFFFFF?text=А"
-                alt="Алексей"
-              />
               <div>
-                <h3>Алексей</h3>
+                <h3>Матвей Мартынов</h3>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
               </div>
             </div>
             <p>
-              "Отличное место! Баня на дровах — просто сказка. Джакузи работает
-              отлично, бассейн тёплый. Всё чисто и уютно. Рекомендую!"
+              "Хорошая баня,можно отдохнуть ,постельное тоже отличное,
+              сотрудники заведение шикарные всегда откликаются,всегда они рады
+              помочь, так что баня шикарная"
             </p>
-            <span class="date">Февраль 2026</span>
+            <span class="date">17 декабря 2025</span>
           </div>
           <div class="review-card">
             <div class="review-header">
-              <img
-                src="https://via.placeholder.com/50x50/4ECDC4/FFFFFF?text=М"
-                alt="Мария"
-              />
               <div>
-                <h3>Мария</h3>
+                <h3>Анна</h3>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
               </div>
             </div>
             <p>
-              "Праздновали день рождения — всё прошло отлично! Хозяин помог с
-              организацией, всё подсказал. Парная шикарная, веники отличные!"
+              "Очень чисто все есть (посуда постельное белье одеяла подушки) нам
+              понравилось баня бассейн были с детьми, хозяин не беспокоил!
+              Отдыхали со 2-5 января все понравилось"
             </p>
-            <span class="date">Ноябрь 2025</span>
+            <span class="date">27 января 2025</span>
           </div>
           <div class="review-card">
             <div class="review-header">
-              <img
-                src="https://via.placeholder.com/50x50/FFD93D/FFFFFF?text=Д"
-                alt="Дмитрий"
-              />
               <div>
-                <h3>Дмитрий</h3>
+                <h3>Анастасия Игоревна</h3>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
               </div>
             </div>
             <p>
-              "Отдыхали компанией 8 человек. Всё продумано до мелочей: музыка,
-              мангал, бассейн. Удобное расположение, рядом речка. Обязательно
-              вернёмся!"
+              "Шикарная баня! Все очень чистенько, есть бассейн. Были с друзьями
+              и детьми, всем очень понравилось. Хозяева доброжелательные,
+              встретили, все показали. Спасибо! Будем ещё с семьёй в ваших
+              краях, придём обязательно"
             </p>
-            <span class="date">Октябрь 2025</span>
+            <span class="date">9 января 2024</span>
           </div>
           <div class="review-card">
             <div class="review-header">
-              <img
-                src="https://via.placeholder.com/50x50/95E1D3/FFFFFF?text=Е"
-                alt="Елена"
-              />
               <div>
-                <h3>Елена</h3>
+                <h3>Ольга Рябова</h3>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
               </div>
             </div>
             <p>
-              "Прекрасное место для семейного отдыха. С детьми очень удобно,
-              есть всё необходимое. Чистота идеальная! Баня просто супер!"
+              "Отлично отдохнули! Хорошая парная, джакузи и бассейн, дети были в
+              восторге! Все чистенько!"
             </p>
-            <span class="date">Июль 2025</span>
+            <span class="date">14 апреля 2024</span>
           </div>
           <div class="review-card">
             <div class="review-header">
-              <img
-                src="https://via.placeholder.com/50x50/FF6B6B/FFFFFF?text=С"
-                alt="Сергей"
-              />
               <div>
-                <h3>Сергей</h3>
+                <h3>Дмитрий Шишкин</h3>
                 <div class="stars">⭐⭐⭐⭐⭐</div>
               </div>
             </div>
             <p>
-              "Отмечали корпоратив. Всё на высшем уровне! Бассейн тёплый, парная
-              отличная. Хозяин очень приветливый, всё показал и рассказал.
-              Компания осталась довольна!"
+              "Чисто аккуратно, хорошая парилка на дровах, есть возможность
+              регулировки температуры дровами ,имеется джакузи в хорошем
+              состоянии с удовольствием провели время в этом замечательном
+              месте"
             </p>
-            <span class="date">Июнь 2025</span>
+            <span class="date">2 ноября 2021</span>
+          </div>
+          <div class="review-card">
+            <div class="review-header">
+              <div>
+                <h3>Дмитрий Чукров</h3>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+              </div>
+            </div>
+            <p>
+              "Отличная баня с хорошей парной на дровах, есть купель, джакузи, с
+              комнатой отдыха, с местом для готовки, холодильником, есть все
+              чтобы хорошо отдохнуть. На улице есть мангальная зона и зелёный
+              дворик."
+            </p>
+            <span class="date">28 июня 2022</span>
           </div>
         </div>
       </div>
@@ -724,18 +685,24 @@
             <h2 style="margin-bottom: 20px">Контакты</h2>
             <p>
               <i class="fas fa-phone"></i>
-              <a href="tel:+79001234567">+7 (900) 123-45-67</a>
+              <a href="tel:+79261490051">+7 (926) 149-00-51</a>
+            </p>
+            <p>
+              <i class="fas fa-phone"></i>
+              <a href="tel:+79263223321">+7 (926) 322 33 21</a>
             </p>
             <p>
               <i class="fas fa-envelope"></i>
-              <a href="mailto:aleksvolkiv5@mail.com">my mail</a>
+              <a href="mailto:shura.alexp@mail.ru" target="_blank"
+                >shura.alexp@mail.ru</a
+              >
             </p>
             <p><i class="fas fa-clock"></i> Ежедневно с 9:00 до 22:00</p>
             <div class="contact-buttons">
-              <a href="https://t.me/whywexist" class="btn-telegram"
+              <a href="https://t.me/+79261490051" class="btn-telegram"
                 ><i class="fab fa-telegram-plane"></i> Telegram</a
               >
-              <a href="https://wa.me/79645041048" class="btn-whatsapp"
+              <a href="https://wa.me/79261490051" class="btn-whatsapp"
                 ><i class="fab fa-whatsapp"></i> WhatsApp</a
               >
             </div>
@@ -753,23 +720,21 @@
               <div class="faq-answer">
                 <p>
                   Без договора не работаем. Работаю официально, плачу налоги.
-                  Договор - это гарант нежелательных последствий отдыха. Для
-                  подписания договора у Вас должен быть действующий гражданский
-                  паспорт РФ. На всремя проживаня паспорт ... (нужно прописать
-                  действия с паспортом и договором)
+                  Договор - это гарант нежелательных последствий отдыха. В
+                  договоре прописаны штрафы за приченненый ущерб. Для подписания
+                  договора у Вас должен быть документ удостоверяющий личность.
                 </p>
               </div>
             </div>
 
             <div class="faq-item">
               <button class="faq-question" onclick="toggleFaq(this)">
-                2. Достаточно одного паспорта на компанию, или каждый должен
-                предоставить?
+                2. Достаточно одного документа на компанию?
                 <i class="fas fa-chevron-down"></i>
               </button>
               <div class="faq-answer">
                 <p>
-                  Достаточно одного паспорта совершеннолетнего гражданина РФ,
+                  Достаточно одного документа совершеннолетнего гражданина РФ,
                   который будет подписывать договор.
                 </p>
               </div>
@@ -782,22 +747,20 @@
               </button>
               <div class="faq-answer">
                 <p>
-                  Ущерб обговаривается по факту, и Вам необходимо будет оплатить
-                  ущерб перед выездом.
+                  Штрафы прописаны в договоре, и Вам необходимо будет оплатить
+                  штраф перед выездом. Непрописаные позиции в договоре -
+                  обговариваются.
                 </p>
               </div>
             </div>
 
             <div class="faq-item">
               <button class="faq-question" onclick="toggleFaq(this)">
-                4. Залог только наличкой, и сразу возвращается перед выездом?
+                4. В каком виде залог?
                 <i class="fas fa-chevron-down"></i>
               </button>
               <div class="faq-answer">
-                <p>
-                  Залог может быть наличкой или переводом. Возвращается только
-                  переводом через несколько часов после Вашего выезда.
-                </p>
+                <p>Залог может быть наличкой или переводом.</p>
               </div>
             </div>
 
@@ -809,10 +772,7 @@
               <div class="faq-answer">
                 <p>
                   Да, есть скидки для постоянных клиентов, при соблюдении
-                  условий. Если Вы посещаете наш дом-баню регулярно, то после
-                  пятого посещения мы можем предложить Вам скидку 5%, после
-                  десятого посещения 10%. Если между посещениями случился
-                  перерыв больше года, то система скидок сбрасываестся.
+                  условий.
                 </p>
               </div>
             </div>
