@@ -204,6 +204,7 @@
                 margin-bottom: 10px;
                 color: var(--text-light);
               "
+              class="sale"
             >
               Скидка 3000₽ при бронирования от 3 ночей
             </p>
@@ -948,6 +949,30 @@
           <button class="btn-delete-all" onclick="deleteAllBlockedDates()">
             <i class="fas fa-trash"></i> Удалить все
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- Кнопка календаря для мобильных -->
+    <button
+      class="mobile-calendar-trigger"
+      id="mobileCalendarTrigger"
+      onclick="openMobileCalendar()"
+    >
+      <i class="fas fa-calendar-alt"></i>
+    </button>
+
+    <!-- Мобильная модалка календаря -->
+    <div class="mobile-calendar-modal" id="mobileCalendarModal">
+      <div class="mobile-calendar-content">
+        <div class="mobile-calendar-header">
+          <h2>Выберите даты</h2>
+          <button class="mobile-calendar-close" onclick="closeMobileCalendar()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="calendar" id="mobileCalendar"></div>
+        <div class="calendar-legend">
+          <span><span class="legend-dot"></span> — недоступно</span>
         </div>
       </div>
     </div>
