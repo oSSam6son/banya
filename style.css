@@ -2247,6 +2247,15 @@ section[id] {
   visibility: visible;
 }
 
+.mobile-calendar-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 3000;
+  align-items: flex-end;
+}
+
 /* ===== Адаптивность для телефонов ===== */
 @media (max-width: 768px) {
   body {
