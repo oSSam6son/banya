@@ -198,39 +198,46 @@
                 ></span>
               </span>
             </div>
-            <p
-              style="
-                margin-top: -10px;
-                margin-bottom: 10px;
-                color: var(--text-light);
-              "
-              class="sale"
-            >
-              Скидка 3000₽ при бронирования от 3 ночей
-            </p>
+            <p class="sale">Скидка 3000₽ при бронирования от 3 ночей</p>
             <div class="booking-form">
               <div class="field">
                 <label>Заезд</label>
-                <input
-                  type="text"
-                  id="checkIn"
-                  placeholder="ДД.ММ.ГГГГ"
-                  oninput="autoFormatDate(this)"
-                  onchange="validateDateInput(this)"
-                  maxlength="10"
-                />
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    id="checkIn"
+                    placeholder="ДД.ММ.ГГГГ"
+                    oninput="autoFormatDate(this)"
+                    onchange="validateDateInput(this)"
+                    maxlength="10"
+                  />
+                  <button
+                    class="date-calendar-btn"
+                    onclick="openMobileCalendar('checkIn')"
+                  >
+                    <i class="fas fa-calendar-alt"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="field" id="checkOutField">
                 <label>Выезд</label>
-                <input
-                  type="text"
-                  id="checkOut"
-                  placeholder="ДД.ММ.ГГГГ"
-                  oninput="autoFormatDate(this)"
-                  onchange="validateDateInput(this)"
-                  maxlength="10"
-                />
+                <div class="date-input-wrapper">
+                  <input
+                    type="text"
+                    id="checkOut"
+                    placeholder="ДД.ММ.ГГГГ"
+                    oninput="autoFormatDate(this)"
+                    onchange="validateDateInput(this)"
+                    maxlength="10"
+                  />
+                  <button
+                    class="date-calendar-btn"
+                    onclick="openMobileCalendar('checkOut')"
+                  >
+                    <i class="fas fa-calendar-alt"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="field" id="hoursField" style="display: none">
@@ -965,7 +972,7 @@
     <div class="mobile-calendar-modal" id="mobileCalendarModal">
       <div class="mobile-calendar-content">
         <div class="mobile-calendar-header">
-          <h2>Выберите даты</h2>
+          <h2>Выберите дату</h2>
           <button class="mobile-calendar-close" onclick="closeMobileCalendar()">
             <i class="fas fa-times"></i>
           </button>
