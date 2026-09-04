@@ -1154,15 +1154,17 @@ section[id] {
 .calendar-day:hover {
   background: #ffe8e0;
 }
-.calendar-day.selected {
-  background: var(--primary);
-  color: var(--white);
-}
 .calendar-day.in-range {
   background: #ffd4c2;
 }
 .calendar-day.today {
   border: 2px solid var(--primary);
+  background: lightgreen;
+  border-color: white;
+}
+.calendar-day.selected {
+  background: var(--primary);
+  color: var(--white);
 }
 /* Прошедшие даты — белые с серым текстом */
 .calendar-day.past {
@@ -1991,6 +1993,15 @@ section[id] {
   margin-right: 5px;
 }
 
+.legend-dot.today {
+  background-color: lightgreen;
+}
+
+.legend-dot.check {
+  background: var(--primary);
+  color: var(--white);
+}
+
 /* ===== Кнопка Оплатить (лава) ===== */
 .btn-payment {
   background: linear-gradient(135deg, #ff4500, #ff6b35, #ff8c00);
@@ -2200,7 +2211,7 @@ section[id] {
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 400;
-  width: 170px;
+  width: 200px;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
@@ -2208,6 +2219,7 @@ section[id] {
   pointer-events: none;
   text-align: left;
   line-height: 1.4;
+  white-space: normal;
 }
 
 .tooltip-text::after {
