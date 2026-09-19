@@ -139,6 +139,13 @@ function updateCollageDots() {
 
 function initGallery() {
   galleryPhotos = galleryData.flatMap((c) => c.photos.map((p) => p.src));
+  
+  // Предзагрузка всех фото
+  galleryPhotos.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+  
   displayCurrentPhoto();
 }
 
