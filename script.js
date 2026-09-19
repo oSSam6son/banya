@@ -97,9 +97,6 @@ function displayCurrentPhoto() {
   counter.textContent = `${currentPhotoInCollage + 1} / ${collage.photos.length}`;
   globalPhotoIndex = galleryPhotos.indexOf(photo.src);
   updateCollageDots();
-
-  container.style.animation = "none";
-  setTimeout(() => (container.style.animation = "fadeIn 0.3s ease"), 10);
 }
 
 function changePhotoInCollage(direction) {
